@@ -138,6 +138,12 @@ const home = { icon: 'bi bi-house', url: '/admin' };
                 // style={{ width: "25%" }}
               ></Column>
               <Column
+                field="date"
+                header="Date"
+                sortable
+                // style={{ width: "25%" }}
+              ></Column>
+              <Column
                 field="category.categoryName"
                 header="Category"
                 sortable

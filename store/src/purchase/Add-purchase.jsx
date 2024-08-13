@@ -1,6 +1,6 @@
 import { CategoryListApi, MLApi } from '../components/apiCall';
 
-import  { BreadCrumb, Calendar, Dropdown, Link, Spinner, Toast, useEffect, useFormik, useNavigate, useRef, useState } from '../share/dependencies'
+import  { BreadCrumb, Calendar, Dropdown, Link, moment, Spinner, Toast, useEffect, useFormik, useNavigate, useRef, useState } from '../share/dependencies'
 
 function AddPurchase() {
   const items = [
@@ -66,6 +66,7 @@ const home = { icon: 'bi bi-house', url: '/admin' };
     initialValues,
     // validationSchema: purchaseSchema,
     onSubmit: (values) => {
+      console.log(values.date);
       setValue(values);
     },
   });
@@ -84,6 +85,7 @@ const home = { icon: 'bi bi-house', url: '/admin' };
       quantity: value.quantity || null,
       ml: value.ml || null,
       address: value.address || null,
+      date: moment(value.date).format("MM/DD/YYYY"),
     };
     const requestOptions = {
       method: "POST",

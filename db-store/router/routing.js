@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const Allrouter = require('../controllers/All-routers');
+const Dashboard = require('../controllers/Dashboard/dashboard');
 
 
 // post apis
@@ -21,6 +22,7 @@ router.get("/categoryList",Allrouter.categoryList);
 router.get("/ML_List",Allrouter.ML_List);
 router.get("/dirspermentList",Allrouter.dirspermentList);
 router.get("/salesList",Allrouter.salesList);
+router.get("/dashboard", Dashboard.dashboard);
 
 //delete api
 router.delete("/productDeleteById/:id",Allrouter.productDeleteById);
