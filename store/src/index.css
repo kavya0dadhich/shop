@@ -1,0 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playwrite+CL:wght@100..400&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+html,
+body,
+* {
+    font-family: "Nanum Gothic", sans-serif;
+  font-weight: 400;
+}
+*::selection{
+    color: white;
+    background: #000;
+}
+.logo{
+    font-family: "Playwrite CL", cursive;
+}

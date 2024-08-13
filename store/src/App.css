@@ -1,0 +1,42 @@
+table tr th {
+  background-color: #ccf6d9;
+}
+
+.p-dropdown-filter {
+  padding: 10px;
+}
+.p-datepicker-trigger{
+  background-color: beige;
+}
+.p-calendar input{
+  padding-left: 10px;
+}
+.p-dropdown-header{
+  background-color: #e0fde9;
+}
+.p-datatable-emptymessage td{
+  text-align: center;
+}
+.table1 {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.table1 td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 12px;
+}
+
+.table1 td, th ,tr{
+ background: #fff;
+ color: black;
+}
+.highcharts-credits{
+  display: none;
+}
+.highcharts-axis-title{
+  display: none;
+
+}
