@@ -24,6 +24,10 @@ const ShopSchema = new Schema({
   },
   product:{
     type:Array
-  }
+  },
+  status: {
+    type: Boolean,
+    default: true,
+  },
 });
 module.exports = mongoose.model("Shops", ShopSchema);

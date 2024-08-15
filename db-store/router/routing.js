@@ -12,6 +12,7 @@ router.post("/createShop",Allrouter.createShop);
 router.post("/createUser",Allrouter.createUser);
 router.post("/createDirsperment",Allrouter.createDirsperment);
 router.post("/salesCreate",Allrouter.salesCreate);
+router.post("/dashboard", Dashboard.dashboard);
 
 
 // get api
@@ -22,7 +23,6 @@ router.get("/categoryList",Allrouter.categoryList);
 router.get("/ML_List",Allrouter.ML_List);
 router.get("/dirspermentList",Allrouter.dirspermentList);
 router.get("/salesList",Allrouter.salesList);
-router.get("/dashboard", Dashboard.dashboard);
 
 //delete api
 router.delete("/productDeleteById/:id",Allrouter.productDeleteById);

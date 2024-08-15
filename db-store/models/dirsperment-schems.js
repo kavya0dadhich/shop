@@ -30,5 +30,9 @@ const dirspermentSchema = new Schema({
         type:String,
         default:false
     },
+    status: {
+        type: Boolean,
+        default: true,
+      },
 })
 module.exports = mongoose.model("dirsperment",dirspermentSchema)

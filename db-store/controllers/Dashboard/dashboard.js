@@ -1,12 +1,20 @@
+const { status } = require("express/lib/response");
 const productSchema = require("../../models/product-schema");
+const salesSchema = require("../../models/sales-schema");
 
 class Dashboard {
   async dashboard(req, res) {
+    if (!req.body.startDate || !req.body.endDate) {
+      res.json(404, {
+        status: "error",
+        message: "Date is required",
+      });
+    }
     try {
-      const startDate = "08/01/2024";
-      const endDate = "08/25/2024";
+      const startDate = req.body.startDate;
+      const endDate = req.body.endDate;
 
-      const result = await productSchema.aggregate([
+      const purchaseData = await productSchema.aggregate([
         {
           $match: {
             date: {
@@ -15,26 +23,57 @@ class Dashboard {
             },
           },
         },
+        {
+          $group: {
+            _id: {
+              purchase: "$purchase",
+              date: "$date"
+            },
+            // totalQuantity: { $sum: "$quantity" }
+          }
+        },
+        {
+          $sum: "$quantity"
+        }
       ]);
-      console.log(result);
-      if (result.length > 0) {
-        res.status(200).json({
+      const salesData = await salesSchema.aggregate([
+        {
+          $match: {
+            date: {
+              $gte: startDate, // Greater than or equal to startDate
+              $lte: endDate, // Less than or equal to endDate
+            },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              purchase: "sales",
+              date: "$date",
+              quantity: { $sum: "$quantity" },
+            },
+          },
+        },
+      ]);
+
+      if (purchaseData.length > 0 || salesData.length > 0) {
+        res.json(200, {
           status: "success",
           message: "data found",
-          data: result, // You can send the result as well if needed
+          result: [salesData, purchaseData],
         });
       } else {
-        res.status(404).json({
+        res.json(404, {
           status: "error",
           message: "data not found",
-          data: result,
         });
       }
     } catch (error) {
-      res.status(500).json({
-        status: "catch error",
-        message: error.message,
-      });
+      if (!res.headersSent) {
+        res.status(500).json({ success: false, message: "An error occurred" });
+      } else {
+        console.error("Headers already sent:", error);
+      }
     }
   }
 }

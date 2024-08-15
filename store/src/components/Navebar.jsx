@@ -69,7 +69,7 @@ function Navebar({ handleDataFromChildNav }) {
             </li>
             <li>
               <CiMenuFries
-                className="max-[903px]:block text-[30px] font-bold text-balck hidden"
+                className="max-[903px]:block text-[30px] font-bold text-balck hidden cursor-pointer"
                 onClick={Nhide}
               />
             </li>

@@ -34,5 +34,9 @@ const registerSchema = new Schema({
         type:String,
         default:false
     },
+    status: {
+        type: Boolean,
+        default: true,
+      },
 })
 module.exports = mongoose.model("register", registerSchema);

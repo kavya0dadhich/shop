@@ -12,6 +12,7 @@ import {
   MdCategory,
   useLocation,
   useState,
+  Tooltip
 } from "../share/dependencies";
 
 // eslint-disable-next-line react/prop-types
@@ -36,7 +37,7 @@ const Sidebar = ({ onDataSend }) => {
     alert("Work is panding.....");
   };
   return (
-    <div className="bg-[#266663] h-[95vh] rounded-xl p-5 max-[1440px]:p-1 overflow-hidden">
+    <div className={`bg-[#266663] h-[95vh] rounded-xl max-[1440px]:p-1 overflow-hidden ${Thide ? 'p-3' : 'p-4'}`}>
       <div>
         <div className="flex justify-between items-center px-4 py-2">
           {Thide ? null : (
@@ -60,9 +61,10 @@ const Sidebar = ({ onDataSend }) => {
                   : "text-white"
               } flex items-center gap-2 ${
                 Thide ? "w-[100%] mt-3" : "w-72"
-              } rounded-full cursor-pointer`}
+              } rounded-full cursor-pointer purchase`}
             >
-              <BiSolidPurchaseTag />
+              <Tooltip target=".purchase" content="Purchase" position="right" event=""/>
+              <BiSolidPurchaseTag/>
               <p className={Thide ? `hidden` : `M-hide`}>Purchase</p>
             </li>
           </Link>
@@ -162,9 +164,9 @@ const Sidebar = ({ onDataSend }) => {
           <Link to="/admin/setting/ml">
             <li
               onClick={() => handleActive("/admin/setting/ml")}
-              className={`hover:bg-[#c0fb86] hover:shadow-md transition-all duration-200 hover:text-[#3b7b68] mb-3 px-4 py-2 text-xl font-[500] ${
+              className={`hover:bg-[#c0fb86] hover:shadow-md transition-all duration-200 hover:text-[#3b7b68] mb-3 py-2 text-xl px-4 font-[500] ${
                 currentPath === "/admin/setting/ml"
-                  ? "bg-[#c0fb86] shadow-md text-[#3b7b68] "
+                  ? "bg-[#c0fb86] shadow-md text-[#3b7b68]"
                   : "text-white"
               } flex items-center gap-2 ${
                 Thide ? "w-[100%] mt-3" : "w-72"
@@ -175,20 +177,24 @@ const Sidebar = ({ onDataSend }) => {
             </li>
           </Link>
         </ul>
-        <ul className="absolute bottom-20">
-          <li
-            className={`border border-[#c0fb86] hover:text-[#c0fb86] hover:bg-transparent transition-all duration-200 px-4 py-2 text-xl font-[500] 
+        {/* <div className="border border-black overflow-hidden"> */}
+        <ul className=" overflow-hidden">
+          <div className="absolute bottom-20">
+            <li
+              className={`border border-[#c0fb86] hover:text-[#c0fb86] hover:bg-transparent transition-all duration-200 py-2 text-xl font-[500] 
                 bg-[#c0fb86] shadow-md text-[#3b7b68]
              flex items-center gap-2 ${
-               Thide ? "w-[100%] mt-3" : "w-72"
+               Thide ? "w-[100%] mt-3 px-3" : "min-w-[110%] px-5"
              } rounded-full cursor-pointer`}
-            onClick={LogOut}
-          >
-            <CiLogout />
-            <p className={Thide ? `hidden` : `M-hide`}>Log Out</p>
-          </li>
+              onClick={LogOut}
+            >
+              <CiLogout />
+              <p className={Thide ? `hidden` : `M-hide`}>Log Out</p>
+            </li>
+          </div>
         </ul>
       </div>
+      {/* </div> */}
     </div>
   );
 };

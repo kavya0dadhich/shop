@@ -6,6 +6,9 @@ const shopSchema = require("../models/shop-schema");
 const userSchema = require("../models/user-schema");
 const dirspermentSchems = require("../models/dirsperment-schems");
 const salesSchema = require("../models/sales-schema");
+const mongoose = require("mongoose");
+const { status } = require("express/lib/response");
+const ObjectId = mongoose.Types.ObjectId;
 
 function generateInvoiceNumber() {
   return `INV-${uuid.v4().slice(0, 8)}`;
@@ -178,22 +181,85 @@ class Allrouter {
   }
   async productDeleteById(req, res) {
     const { id } = req.params;
-    const result = await productSchema.findOneAndUpdate(
-      { _id: id },
-      { $set: { status: false } },
-      { new: true }
-    );
-    console.log(result);
-    if (result) {
-      res.json(200, {
-        status: "success",
-        message: "Product is deleted",
-        result,
-      });
-    } else {
-      res.json(404, {
+
+    if (!id) {
+      return res.status(404).json({
         status: "error",
-        message: "Product not deleted",
+        message: "Id is required",
+      });
+    }
+
+    try {
+      // Update sales schema
+      const Psales = await salesSchema.updateOne(
+        {
+          $or: [
+            {
+              typeOfSale: "Product",
+              "updatedProductAll._id": new mongoose.Types.ObjectId(id),
+            },
+            {
+              typeOfSale: "Shop",
+              "updatedShopAll._id": new mongoose.Types.ObjectId(id),
+            },
+          ],
+        },
+        {
+          $set: { status: false },
+        }
+      );
+      // Step 1: Find the document in dirspermentSchema and retrieve the shop ID
+      const dir = await dirspermentSchems.findOneAndUpdate(
+        { "updatedProduct._id": new mongoose.Types.ObjectId(id) },
+        { $set: { status: false, } }, // ✔️ If the schema expects a number
+        { new: true }
+      );
+      console.log(dir);
+      if (dir) {
+        const shopId = dir.updatedShop._id;
+
+        // Step 2: Update the shop's quantity and dueQuantity to 0
+        const shopUpdate = await shopSchema.updateOne(
+          { _id: shopId },
+          {
+            $set: {
+              quantity: 0,
+              dueQuntity: 0,
+            },
+          }
+        );
+
+        console.log("Shop update result:", shopUpdate);
+      } else {
+        console.log("No document found with the provided updatedProduct._id");
+      }
+
+      console.log("Update pipeline result:", dir);
+
+      // Update product schema
+      const result = await productSchema.findOneAndUpdate(
+        { _id: new mongoose.Types.ObjectId(id) },
+        { $set: { status: false } },
+        { new: true }
+      );
+
+      if (result || Psales || dir) {
+        return res.status(200).json({
+          status: "success",
+          message: "Product is deleted",
+          Psales,
+        });
+      } else {
+        return res.status(404).json({
+          status: "error",
+          message: "Product not deleted",
+        });
+      }
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      return res.status(500).json({
+        status: "error",
+        message: "Internal server error",
       });
     }
   }
@@ -290,7 +356,7 @@ class Allrouter {
   }
   async shopList(req, res) {
     try {
-      const result = await shopSchema.find();
+      const result = await shopSchema.find({ status: true });
       if (!result) {
         return res.json(404, {
           status: "error",
@@ -454,7 +520,7 @@ class Allrouter {
       const { disperseQuantity, date, shopID, productID, note } = req.body;
 
       // Validate required fields
-      console.log(disperseQuantity, date, shopID, productID, note); 
+      console.log(disperseQuantity, date, shopID, productID, note);
       if (!productID || !disperseQuantity || !shopID) {
         return res.status(400).json({
           status: "error",
@@ -514,7 +580,7 @@ class Allrouter {
               category: updatedProduct.category,
               subCategories: updatedProduct.subCategories,
               ml: updatedProduct.ml,
-              shopQuntity:Number(disperseQuantity),
+              shopQuntity: Number(disperseQuantity),
             },
           },
         },
@@ -553,7 +619,7 @@ class Allrouter {
   }
   async dirspermentList(req, res) {
     try {
-      const result = await dirspermentSchems.find();
+      const result = await dirspermentSchems.find({ status: true });
 
       if (!result) {
         return res.status(500).json({
@@ -655,7 +721,7 @@ class Allrouter {
   }
   async salesList(req, res) {
     try {
-      const result = await salesSchema.find();
+      const result = await salesSchema.find({ status: true });
       if (!result) {
         res.json(404, {
           status: "error",

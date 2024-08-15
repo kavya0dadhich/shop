@@ -28,3 +28,12 @@ export const ProductLApi = async () => {
     return error;
   }
 };
+// export const DashbordApi = async () => {
+//   try {
+//     const res = await fetch("http://localhost:3000/dashboard");
+//     const date = await res.json();
+//     if(date.result) return date 
+//   } catch (error) {
+//     return error
+//   }
+// }

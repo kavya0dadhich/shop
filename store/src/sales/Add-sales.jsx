@@ -423,7 +423,7 @@ const home = { icon: 'bi bi-house', url: '/admin' };
             >
               Submit
             </button>
-            <Link to={"/sales"}>
+            <Link to={"/admin/sales"}>
               <button
                 className="px-5 py-2 text-lg rounded-md active:scale-[0.9] shadow-md bg-zinc-400 text-white"
                 type="button"
