@@ -1,12 +1,18 @@
+/* eslint-disable no-dupe-keys */
 import {
   AiFillEdit,
   BreadCrumb,
   Column,
+  ConfirmDialog,
+  confirmDialog,
   DataTable,
   FaEye,
   Link,
+  MdDelete,
   Spinner,
+  Toast,
   useEffect,
+  useRef,
   useState,
 } from "../share/dependencies";
 
@@ -15,17 +21,21 @@ function Sales() {
   const home = { icon: "bi bi-house", url: "/admin" };
   const [tableData, setTableData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const toast = useRef(null);
   useEffect(() => {
-    fetch("http://localhost:3000/salesList")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.result) setTableData(data.result);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+  sailsList()
   }, []);
+  function sailsList(){
+    fetch("http://localhost:3000/salesList")
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.result) setTableData(data.result);
+      setLoading(false);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+  }
   const editItem = (rowData) => {
     console.log(`Editing item: ${rowData}`);
   };
@@ -58,6 +68,61 @@ function Sales() {
     //     </>
     //   );
     // }
+  };
+  const deleteItem = (rowData) => {
+    console.log(rowData._id);
+    setLoading(true);
+    const requestOptions = {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+    };
+    fetch(
+        `http://localhost:3000/salesDelete/${rowData._id}`,
+        requestOptions
+    )
+        .then((res) => res.json())
+        .then((data) => {
+            console.log(data);
+            if (data.status === "success") {
+                toast.current.show({
+                    severity: "success",
+                    life: 3000,
+                    summary: "Success",
+                    detail: data.message,
+                });
+                sailsList();
+            } else {
+                toast.current.show({
+                    severity: "error",
+                    life: 3000,
+                    summary: "Error",
+                    detail: data.message,
+                });
+            }
+            setLoading(false);
+        })
+        .catch((error) => {
+            console.log(error);
+            toast.current.show({
+                severity: "error",
+                life: 3000,
+                summary: "Error",
+                detail: "An unexpected error occurred.",
+            });
+            setLoading(false);
+        });
+};
+  const confirm2 = (rowData) => {
+    confirmDialog({
+      message: "Do you want to delete this record?",
+      header: "Delete Confirmation",
+      icon: "pi pi-info-circle",
+      defaultFocus: "reject",
+      acceptClassName: "p-button-danger",
+      accept: () => deleteItem(rowData),
+      rejectClassName: "custom-reject-button",
+      acceptClassName: "custom-accept-button",
+    });
   };
   const colorSetBlue = (rowData) => {
     console.log(rowData);
@@ -92,6 +157,7 @@ function Sales() {
   };
   return (
     <>
+     <ConfirmDialog />
       <div className="p-5">
         <BreadCrumb model={items} home={home} className="my-5 w-52" />
         <div className="p-5 bg-[#163832] rounded-md">
@@ -114,7 +180,6 @@ function Sales() {
             tableStyle={{ minWidth: "50rem" }}
             paginator
             rows={5}
-            selectionMode="single"
             rowsPerPageOptions={[5, 10, 25, 50]}
             scrollHeight="620px"
           >
@@ -151,6 +216,10 @@ function Sales() {
                       onClick={() => editItem(rowData)}
                       className="cursor-pointer "
                     />
+                    <MdDelete
+                      onClick={() => confirm2(rowData)}
+                      className="cursor-pointer"
+                    />
                   </div>
                 </>
               )}
@@ -158,6 +227,7 @@ function Sales() {
           </DataTable>
         </div>
         {loading && <Spinner />}
+        <Toast ref={toast} />
       </div>
     </>
   );

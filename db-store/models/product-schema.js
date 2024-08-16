@@ -36,7 +36,7 @@ const ProductSchema = new Schema({
   },
   status: {
     type: Boolean,
-    default: false,
+    default: true,
   },
 });
 module.exports = mongoose.model("Products", ProductSchema);

@@ -37,8 +37,9 @@ function login() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
+      credentials: 'include',
     };
-    fetch("http://localhost:3000/createUser", requestOptions)
+    fetch("http://localhost:3000/login", requestOptions)
       .then((res) => res.json())
       .then((resp) => {
         console.log(resp);

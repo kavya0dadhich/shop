@@ -6,9 +6,11 @@ const shopSchema = require("../models/shop-schema");
 const userSchema = require("../models/user-schema");
 const dirspermentSchems = require("../models/dirsperment-schems");
 const salesSchema = require("../models/sales-schema");
+const registerSchema = require("../models/register-schema");
 const mongoose = require("mongoose");
 const { status } = require("express/lib/response");
-const ObjectId = mongoose.Types.ObjectId;
+var nodemailer = require("nodemailer");
+const jwt = require("jsonwebtoken");
 
 function generateInvoiceNumber() {
   return `INV-${uuid.v4().slice(0, 8)}`;
@@ -211,7 +213,7 @@ class Allrouter {
       // Step 1: Find the document in dirspermentSchema and retrieve the shop ID
       const dir = await dirspermentSchems.findOneAndUpdate(
         { "updatedProduct._id": new mongoose.Types.ObjectId(id) },
-        { $set: { status: false, } }, // ✔️ If the schema expects a number
+        { $set: { status: false } }, // ✔️ If the schema expects a number
         { new: true }
       );
       console.log(dir);
@@ -225,6 +227,7 @@ class Allrouter {
             $set: {
               quantity: 0,
               dueQuntity: 0,
+              "product.0.shopQuntity": 0,
             },
           }
         );
@@ -246,13 +249,13 @@ class Allrouter {
       if (result || Psales || dir) {
         return res.status(200).json({
           status: "success",
-          message: "Product is deleted",
+          message: "Product record deleted successfully",
           Psales,
         });
       } else {
         return res.status(404).json({
           status: "error",
-          message: "Product not deleted",
+          message: "Product record not deleted successfully",
         });
       }
     } catch (error) {
@@ -377,6 +380,98 @@ class Allrouter {
       console.log("try is not working");
     }
   }
+  async shopDelete(req, res) {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(404).json({
+        status: "error",
+        message: "Id is required",
+      });
+    }
+
+    try {
+      // Update the shop
+      const ShopFindById = await shopSchema.findByIdAndUpdate(
+        id,
+        {
+          quantity: 0,
+          dueQuantity: 0, // corrected typo
+        },
+        { new: true } // return the updated document
+      );
+
+      if (!ShopFindById) {
+        return res.status(404).json({
+          status: "error",
+          message: "Shop record not found",
+        });
+      }
+      try {
+        if (ShopFindById.product) {
+          for (const ele of ShopFindById.product) {
+            try {
+              if (ele.productId) {
+                const currentProduct = await productSchema.findById(
+                  ele.productId
+                );
+
+                if (currentProduct) {
+                  const newDueQuantity =
+                    Number(currentProduct.dueQuantity) +
+                    Number(ele.shopQuntity);
+
+                  await productSchema.findByIdAndUpdate(
+                    ele.productId,
+                    { dueQuantity: newDueQuantity },
+                    { new: true }
+                  );
+                } else {
+                  console.log(`Product with ID ${ele.productId} not found`);
+                }
+              }
+            } catch (err) {
+              console.error(
+                `Error updating product with ID ${ele.productId}:`,
+                err.message
+              );
+            }
+          }
+          try {
+            const dirspermentData = await dirspermentSchems.updateMany(
+              { "updatedShop._id": new mongoose.Types.ObjectId(id) },
+              { $set: { status: false } }
+            );
+          } catch (error) {
+            console.log(error);
+          }
+
+          // Update salesSchema
+          try {
+            const salesData = await salesSchema.updateMany(
+              { "updatedShopAll._id": new mongoose.Types.ObjectId(id) },
+              { $set: { status: false } }
+            );
+          } catch (error) {
+            console.log(error);
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
+
+      return res.status(200).json({
+        status: "success",
+        message: "Shop record deleted successfully",
+      });
+    } catch (error) {
+      console.error("Internal Server Error:", error.message);
+      return res.status(500).json({
+        status: "error",
+        message: "Internal Server error",
+      });
+    }
+  }
+
   async getShopDataById(req, res) {
     const { id } = req.body;
     if (!id) {
@@ -408,81 +503,122 @@ class Allrouter {
     }
   }
   //   user api
-  async createUser(req, res) {
-    const { email, password, role } = req.body;
-    if (!role.length) {
-      res.json(404, {
+  async login(req, res) {
+    const { email, password } = req.body;
+    const SECRET_KEY = "s34d5f6yuytr3456yg53456@#$%&*6";
+    const TOKEN_EXPIRATION = "5h";
+
+    // Check for email and password
+    if (!email || !password) {
+      return res.status(400).json({
         status: "error",
-        message: "role is required",
-      });
-    }
-    if ((!email, !password, !role)) {
-      return res.json(404, {
-        status: "error",
-        message: "Vaild email and password",
+        message: "Valid email and password required",
       });
     }
 
     try {
-      const data = {
-        email,
-        password,
-      };
-      const result = await userSchema.create(data);
-      if (!result) {
-        return res.json(404, {
+      // Find user
+      const registerUser = await registerSchema.findOne({ email });
+      if (!registerUser) {
+        return res.status(404).json({
           status: "error",
-          message: "user is not cerated",
-        });
-      } else {
-        return res.json(200, {
-          status: "success",
-          message: "user cerated successfully",
-          result,
+          message: "User not found",
         });
       }
+
+      // Check password
+      if (registerUser.password !== password) {
+        return res.status(401).json({
+          status: "error",
+          message: "Credentials do not match",
+        });
+      }
+
+      // Create JWT token
+      const token = jwt.sign(
+        { email: email, id: registerUser._id },
+        SECRET_KEY,
+        { expiresIn: TOKEN_EXPIRATION }
+      );
+
+      // Set the token in an HTTP-only cookie
+      res.cookie("token", token, {
+        httpOnly: false,
+        secure: false,
+        sameSite: "Lax",
+      });
+
+      return res.status(200).json({
+        status: "success",
+        message: "User logged in successfully",
+        registerUser,
+      });
     } catch (error) {
-      return res.json(404, {
+      console.log("Error occurred:", error.message);
+      return res.status(500).json({
         status: "error",
         message: error.message,
       });
-      console.log("try is not working");
     }
   }
+
   async createRegister(req, res) {
-    const { userName, address, phoneNumber, email, password, gender, DOB } =
+    const { firstName, lastName, address, phoneNumber, email, DOB, password } =
       req.body;
-    if (!role.length) {
-      res.json(404, {
-        status: "error",
-        message: "role is required",
-      });
-    }
-    if ((!email, !password, !role)) {
-      return res.json(404, {
-        status: "error",
-        message: "Vaild email and password",
-      });
-    }
 
     try {
       const data = {
         email,
+        firstName,
+        address,
+        lastName,
+        phoneNumber,
+        DOB,
         password,
       };
-      const result = await userSchema.create(data);
+      const result = await registerSchema.create(data);
       if (!result) {
         return res.json(404, {
           status: "error",
-          message: "user is not cerated",
+          message: "User is not Register",
         });
       } else {
-        return res.json(200, {
-          status: "success",
-          message: "user cerated successfully",
-          result,
+        var fromEmail = "dadhichkavya89@gmail.com";
+        var transporter = nodemailer.createTransport({
+          service: "gmail",
+          auth: {
+            user: fromEmail,
+            pass: "vrpw jutk wgky asmn",
+          },
+        });
+        const path = "http://localhost:5173/";
+        var mailOptions = {
+          from: fromEmail,
+          to: email,
+          subject: "Welcome to Drinks Manager",
+          html: `<p>Dear ${firstName + "" + lastName},</p>
+                    <p>Welcome to Drinks Manager Systme! We're excited to have you join our community.</p>
+                    <p>Your account has been successfully created. Please click the link below to login your account:</p>
+                    <p>Username : ${firstName + "" + lastName}</p>
+                    <p><a href="${path}">Login Your Account</a></p>
+                    <p>If you cannot click the link, please copy and paste the following URL into your browser:</p>
+                    <p>${path}</p>
+                    <p>After activating your account, you'll be able to [brief description of features or benefits].</p>
+                    <p>If you have any questions or need assistance, feel free to contact our support team at <a href="mailto:support@example.com">kavyadadhich5@gmail.com</a>.</p>`,
+        };
+
+        transporter.sendMail(mailOptions, function (error, info) {
+          if (error) {
+            console.log(error);
+          } else {
+            console.log("Email sent: " + info.response);
+          }
         });
       }
+      return res.status(200).json({
+        status: "success",
+        message: "User is Register",
+      });
     } catch (error) {
       return res.json(404, {
         status: "error",
@@ -577,6 +713,7 @@ class Allrouter {
           dueQuntity: updatedShopQuantity,
           $push: {
             product: {
+              productId: updatedProduct._id,
               category: updatedProduct.category,
               subCategories: updatedProduct.subCategories,
               ml: updatedProduct.ml,
@@ -738,6 +875,67 @@ class Allrouter {
       res.json(404, {
         status: "error",
         message: error.message,
+      });
+    }
+  }
+  async salesDelete(req, res) {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(404).json({
+        status: "error",
+        message: "Id is required",
+      });
+    }
+    try {
+      const objectId = new mongoose.Types.ObjectId(id);
+
+      // Perform the update operation
+      const uSales = await salesSchema.findByIdAndUpdate(
+        { _id: objectId },
+        { $set: { status: false } },
+        { new: true }
+      );
+      if (uSales.updatedShopAll) {
+        const data = await shopSchema.findByIdAndUpdate(
+          { _id: uSales.updatedShopAll._id },
+          {
+            $set: {
+              dueQuntity:
+                uSales.updatedShopAll.dueQuntity + uSales.salesQuntity,
+            },
+          },
+          { new: true }
+        );
+      }
+      console.log(uSales);
+      if (uSales.updatedProductAll) {
+        console.log("working");
+        const data = await productSchema.findByIdAndUpdate(
+          { _id: uSales.updatedProductAll._id },
+          {
+            $set: {
+              dueQuantity:
+                uSales.updatedProductAll.dueQuantity + uSales.salesQuntity,
+            },
+          },
+          { new: true }
+        );
+      }
+
+      if (!uSales) {
+        res.status(404).json({
+          status: "error",
+          message: "Sales record not deleted successfully",
+        });
+      }
+      res.status(200).json({
+        status: "success",
+        message: "Sales record deleted successfully",
+      });
+    } catch (error) {
+      res.status(500).json({
+        status: "error",
+        message: "Internal server error",
       });
     }
   }

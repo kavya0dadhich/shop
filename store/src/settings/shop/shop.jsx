@@ -1,14 +1,9 @@
-import { useEffect, useState } from "react";
-import { FaEye } from "react-icons/fa";
-import { AiFillEdit } from "react-icons/ai";
-import { Column } from "primereact/column";
-import { DataTable } from "primereact/datatable";
-import { Link } from "react-router-dom";
-import { FilterMatchMode } from "primereact/api";
-import { Dialog } from "primereact/dialog";
-import { Spinner } from "../../components/spinner";
+import Column from 'antd/es/table/Column';
+import { AiFillEdit, BreadCrumb, confirmDialog, ConfirmDialog, DataTable, Dialog, FaEye, FilterMatchMode, Link, MdDelete, Spinner, Toast, useEffect, useRef, useState } from '../../share/dependencies'
 
 function Shop() {
+  const items = [{ label: "Shop", url: "/admin/setting/shop" }];
+  const home = { icon: "bi bi-house", url: "/admin" };
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -16,17 +11,21 @@ function Shop() {
   const [shop, setShop] = useState([]);
   const [visible, setVisible] = useState(false);
   const [dialogData, setDialogData] = useState();
+  const toast = useRef(null);
   useEffect(() => {
-    fetch("http://localhost:3000/shopList")
-      .then((res) => res.json())
-      .then((data) => {
-        setLoading(false)
-        setShop(data.result);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    shopList()
   }, []);
+  function shopList(){
+    fetch("http://localhost:3000/shopList")
+    .then((res) => res.json())
+    .then((data) => {
+      setLoading(false)
+      setShop(data.result);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+  }
   const editItem = (rowData) => {
     console.log(`Editing item: ${rowData}`);
   };
@@ -67,8 +66,62 @@ function Shop() {
   //     </>)
   //   }
   // }
+  const deleteItem = (rowData) => {
+    console.log(rowData._id);
+    setLoading(true);
+    const requestOptions = {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+    };
+    fetch(
+      `http://localhost:3000/shopDelete/${rowData._id}`,
+      requestOptions
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        if (data.status == "success") {
+          toast.current.show({
+            severity: "success",
+            life: 3000,
+            summary: "Success",
+            detail: data.message,
+          });
+          shopList();
+          setLoading(false);
+        } else {
+          toast.current.show({
+            severity: "error",
+            life: 3000,
+            summary: "Error",
+            detail: data.message,
+          });
+          setLoading(false);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+  const confirm2 = (rowData) => {
+    confirmDialog({
+      message: "Do you want to delete this record?",
+      header: "Delete Confirmation",
+      icon: "pi pi-info-circle",
+      defaultFocus: "reject",
+      acceptClassName: "p-button-danger",
+      accept: () => deleteItem(rowData),
+      // eslint-disable-next-line no-dupe-keys
+      rejectClassName: "custom-reject-button",
+      // eslint-disable-next-line no-dupe-keys
+      acceptClassName: "custom-accept-button",
+    });
+  };
   return (
     <>
+    <ConfirmDialog />
+      <div className="p-5">
+        <BreadCrumb model={items} home={home} className="my-5 w-72" />
       <div className="p-5 bg-[#163832] rounded-md">
         <div className="flex justify-between items-center mb-2 flex-wrap">
           {/* <div>
@@ -144,11 +197,16 @@ function Shop() {
                     onClick={() => editItem(rowData)}
                     className="cursor-pointer "
                   />
+                  <MdDelete
+                      onClick={() => confirm2(rowData)}
+                      className="cursor-pointer"
+                    />
                 </div>
               </>
             )}
           />
         </DataTable>
+      </div>
       </div>
       <Dialog
         header={dialogData?.shopName}
@@ -205,6 +263,7 @@ function Shop() {
           </DataTable>
         </div>
       </Dialog>
+      <Toast ref={toast} />
       {loading && <Spinner />}
     </>
   );

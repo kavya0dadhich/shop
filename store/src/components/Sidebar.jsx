@@ -12,15 +12,22 @@ import {
   MdCategory,
   useLocation,
   useState,
-  Tooltip
+  Tooltip,
+  useRef,
+  Toast,
+  useNavigate,
 } from "../share/dependencies";
+import Cookies from "js-cookie";
 
 // eslint-disable-next-line react/prop-types
 const Sidebar = ({ onDataSend }) => {
+
+  const navigate = useNavigate();
   // eslint-disable-next-line no-unused-vars
   const [active, setActive] = useState("");
   const [Thide, setThide] = useState(false);
   const location = useLocation();
+  const toast = useRef(null);
   const currentPath = location.pathname;
 
   const handleActive = (path) => {
@@ -34,10 +41,23 @@ const Sidebar = ({ onDataSend }) => {
     onDataSend(Thide);
   };
   const LogOut = () => {
-    alert("Work is panding.....");
+    toast.current.show({
+      severity: "success",
+      life: 3000,
+      summary: "Success",
+      detail: "Log-Out successfully",
+    });
+    setTimeout(() => {
+      navigate("/");
+      Cookies.remove("token");
+    }, 2500);
   };
   return (
-    <div className={`bg-[#266663] h-[95vh] rounded-xl max-[1440px]:p-1 overflow-hidden ${Thide ? 'p-3' : 'p-4'}`}>
+    <div
+      className={`bg-[#266663] h-[95vh] rounded-xl max-[1440px]:p-1 overflow-hidden ${
+        Thide ? "p-3" : "p-4"
+      }`}
+    >
       <div>
         <div className="flex justify-between items-center px-4 py-2">
           {Thide ? null : (
@@ -63,8 +83,13 @@ const Sidebar = ({ onDataSend }) => {
                 Thide ? "w-[100%] mt-3" : "w-72"
               } rounded-full cursor-pointer purchase`}
             >
-              <Tooltip target=".purchase" content="Purchase" position="right" event=""/>
-              <BiSolidPurchaseTag/>
+              <Tooltip
+                target=".purchase"
+                content="Purchase"
+                position="right"
+                event=""
+              />
+              <BiSolidPurchaseTag />
               <p className={Thide ? `hidden` : `M-hide`}>Purchase</p>
             </li>
           </Link>
@@ -77,8 +102,14 @@ const Sidebar = ({ onDataSend }) => {
                   : "text-white"
               } flex items-center gap-2 ${
                 Thide ? "w-[100%] mt-3" : "w-72"
-              } rounded-full cursor-pointer`}
+              } rounded-full cursor-pointer sales`}
             >
+              <Tooltip
+                target=".sales"
+                content="Sales"
+                position="right"
+                event=""
+              />
               <FcSalesPerformance />
               <p className={Thide ? `hidden` : `M-hide`}>Sales</p>
             </li>
@@ -92,8 +123,14 @@ const Sidebar = ({ onDataSend }) => {
                   : "text-white"
               } flex items-center gap-2 ${
                 Thide ? "w-[100%] mt-3" : "w-72"
-              } rounded-full cursor-pointer`}
+              } rounded-full cursor-pointer disbursement`}
             >
+              <Tooltip
+                target=".disbursement"
+                content="Disbursement"
+                position="right"
+                event=""
+              />
               <GiVerticalFlip />
               <p className={Thide ? `hidden` : `M-hide`}>Disbursement</p>
             </li>
@@ -110,10 +147,37 @@ const Sidebar = ({ onDataSend }) => {
                   : "text-white"
               } flex items-center gap-2 ${
                 Thide ? "w-[100%] mt-3" : "w-72"
-              } rounded-full cursor-pointer`}
+              } rounded-full cursor-pointer setting`}
             >
+              <Tooltip
+                target=".setting"
+                content="User Profile"
+                position="right"
+                event=""
+              />
               <ImProfile />
               <p className={Thide ? `hidden` : `M-hide`}>User Profile</p>
+            </li>
+          </Link>
+          <Link to="/admin/setting/shop">
+            <li
+              onClick={() => handleActive("/admin/setting/shop")}
+              className={`hover:bg-[#c0fb86] hover:shadow-md transition-all duration-200 hover:text-[#3b7b68] mb-3 px-4 py-2 text-xl font-[500] ${
+                currentPath === "/admin/setting/shop"
+                  ? "bg-[#c0fb86] shadow-md text-[#3b7b68] "
+                  : "text-white"
+              } flex items-center gap-2 ${
+                Thide ? "w-[100%] mt-3" : "w-72"
+              } rounded-full cursor-pointer shop`}
+            >
+              <Tooltip
+                target=".shop"
+                content="Shop"
+                position="right"
+                event=""
+              />
+              <CiShop />
+              <p className={Thide ? `hidden` : `M-hide`}>Shops</p>
             </li>
           </Link>
           <Link to="/admin/setting/Category">
@@ -125,8 +189,14 @@ const Sidebar = ({ onDataSend }) => {
                   : "text-white"
               } flex items-center gap-2 ${
                 Thide ? "w-[100%] mt-3" : "w-72"
-              } rounded-full cursor-pointer`}
+              } rounded-full cursor-pointer category`}
             >
+              <Tooltip
+                target=".category"
+                content="Category"
+                position="right"
+                event=""
+              />
               <BiSolidCategory />
               <p className={Thide ? `hidden` : `M-hide`}>Category</p>
             </li>
@@ -140,25 +210,16 @@ const Sidebar = ({ onDataSend }) => {
                   : "text-white"
               } flex items-center gap-2 ${
                 Thide ? "w-[100%] mt-3" : "w-72"
-              } rounded-full cursor-pointer`}
+              } rounded-full cursor-pointer subCategory`}
             >
+              <Tooltip
+                target=".subCategory"
+                content="Sub Category"
+                position="right"
+                event=""
+              />
               <MdCategory />
               <p className={Thide ? `hidden` : `M-hide`}>Sub Category</p>
-            </li>
-          </Link>
-          <Link to="/admin/setting/shop">
-            <li
-              onClick={() => handleActive("/admin/setting/shop")}
-              className={`hover:bg-[#c0fb86] hover:shadow-md transition-all duration-200 hover:text-[#3b7b68] mb-3 px-4 py-2 text-xl font-[500] ${
-                currentPath === "/admin/setting/shop"
-                  ? "bg-[#c0fb86] shadow-md text-[#3b7b68] "
-                  : "text-white"
-              } flex items-center gap-2 ${
-                Thide ? "w-[100%] mt-3" : "w-72"
-              } rounded-full cursor-pointer`}
-            >
-              <CiShop />
-              <p className={Thide ? `hidden` : `M-hide`}>Shops</p>
             </li>
           </Link>
           <Link to="/admin/setting/ml">
@@ -170,8 +231,14 @@ const Sidebar = ({ onDataSend }) => {
                   : "text-white"
               } flex items-center gap-2 ${
                 Thide ? "w-[100%] mt-3" : "w-72"
-              } rounded-full cursor-pointer`}
+              } rounded-full cursor-pointer ml`}
             >
+              <Tooltip
+                target=".ml"
+                content="Milli liter"
+                position="right"
+                event=""
+              />
               <AiTwotoneBuild />
               <p className={Thide ? `hidden` : `M-hide`}>Milli liter</p>
             </li>
@@ -185,9 +252,15 @@ const Sidebar = ({ onDataSend }) => {
                 bg-[#c0fb86] shadow-md text-[#3b7b68]
              flex items-center gap-2 ${
                Thide ? "w-[100%] mt-3 px-3" : "min-w-[110%] px-5"
-             } rounded-full cursor-pointer`}
+             } rounded-full cursor-pointer loguot`}
               onClick={LogOut}
             >
+              <Tooltip
+                target=".loguot"
+                content="Log Out"
+                position="right"
+                event=""
+              />
               <CiLogout />
               <p className={Thide ? `hidden` : `M-hide`}>Log Out</p>
             </li>
@@ -195,6 +268,7 @@ const Sidebar = ({ onDataSend }) => {
         </ul>
       </div>
       {/* </div> */}
+      <Toast ref={toast} />
     </div>
   );
 };

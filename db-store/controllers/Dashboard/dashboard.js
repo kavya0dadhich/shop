@@ -10,9 +10,10 @@ class Dashboard {
         message: "Date is required",
       });
     }
+    const startDate = req.body.startDate;
+    const endDate = req.body.endDate;
+    console.log(startDate, endDate);
     try {
-      const startDate = req.body.startDate;
-      const endDate = req.body.endDate;
 
       const purchaseData = await productSchema.aggregate([
         {
@@ -27,14 +28,14 @@ class Dashboard {
           $group: {
             _id: {
               purchase: "$purchase",
-              date: "$date"
+              date: "$date",
             },
             // totalQuantity: { $sum: "$quantity" }
-          }
+          },
         },
         {
-          $sum: "$quantity"
-        }
+          $sum: "$quantity",
+        },
       ]);
       const salesData = await salesSchema.aggregate([
         {
@@ -53,6 +54,9 @@ class Dashboard {
               quantity: { $sum: "$quantity" },
             },
           },
+        },
+        {
+          status: true,
         },
       ]);
 

@@ -3,7 +3,10 @@ import {
   AiFillEdit,
   BreadCrumb,
   Column,
+  confirmDialog,
+  ConfirmDialog,
   DataTable,
+  Dialog,
   FaEye,
   FilterMatchMode,
   Link,
@@ -20,7 +23,9 @@ function Purchase() {
   const home = { icon: "bi bi-house", url: "/admin" };
   const [tableData, setTableData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [viewData, setViewData] = useState(true);
   const toast = useRef(null);
+  const [visible, setVisible] = useState(false);
   const [filter, setFilter] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
   });
@@ -41,7 +46,7 @@ function Purchase() {
   };
   const deleteItem = (rowData) => {
     console.log(rowData._id);
-    setLoading(true)
+    setLoading(true);
     const requestOptions = {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
@@ -61,7 +66,7 @@ function Purchase() {
             detail: data.message,
           });
           fatchProductData();
-          setLoading(false)
+          setLoading(false);
         } else {
           toast.current.show({
             severity: "error",
@@ -69,12 +74,27 @@ function Purchase() {
             summary: "Error",
             detail: data.message,
           });
-          setLoading(false)
+          setLoading(false);
         }
       })
       .catch((error) => {
         console.log(error);
       });
+  };
+
+  const confirm2 = (rowData) => {
+    confirmDialog({
+      message: "Do you want to delete this record?",
+      header: "Delete Confirmation",
+      icon: "pi pi-info-circle",
+      defaultFocus: "reject",
+      acceptClassName: "p-button-danger",
+      accept: () => deleteItem(rowData),
+      // eslint-disable-next-line no-dupe-keys
+      rejectClassName: "custom-reject-button",
+      // eslint-disable-next-line no-dupe-keys
+      acceptClassName: "custom-accept-button",
+    });
   };
   const renderDueQuantity = (rowData) => {
     console.log(rowData);
@@ -89,9 +109,11 @@ function Purchase() {
     );
   };
 
-  // const setColor = (rowData) => (
-  //   <div className="text-red-400">{rowData.ml}ml</div>
-  // );
+  const viewItem = (rowData) => {
+    setVisible(true);
+    setViewData(rowData);
+    console.log(rowData);
+  };
   const colorSet = (rowData) => {
     console.log(rowData);
     if (rowData.quantity) {
@@ -106,6 +128,7 @@ function Purchase() {
   };
   return (
     <>
+      <ConfirmDialog />
       <div className="p-5">
         <BreadCrumb model={items} home={home} className="my-5 w-72" />
         <div className="p-5 bg-[#163832] rounded-md">
@@ -193,7 +216,7 @@ function Purchase() {
                   <div className="flex gap-5 text-[20px] text-black ">
                     {/* className="hover:-translate-y-1 cursor-pointer transition-all" */}
                     <FaEye
-                      onClick={() => editItem(rowData)}
+                      onClick={() => viewItem(rowData)}
                       className="cursor-pointer "
                     />
                     <AiFillEdit
@@ -201,7 +224,7 @@ function Purchase() {
                       className="cursor-pointer "
                     />
                     <MdDelete
-                      onClick={() => deleteItem(rowData)}
+                      onClick={() => confirm2(rowData)}
                       className="cursor-pointer"
                     />
                   </div>
@@ -213,6 +236,37 @@ function Purchase() {
       </div>
       {loading && <Spinner />}
       <Toast ref={toast} />
+      <Dialog
+        header="Purchase Details"
+        visible={visible}
+        style={{ width: "30vw" }}
+        onHide={() => {
+          if (!visible) return;
+          setVisible(false);
+        }}
+      >
+        <p className="m-0">
+          <div>
+            <h2 className="text-[22px] font-bold text-blue-700">
+              Invoice:- {viewData?.invoice}
+            </h2>
+            <div className="flex gap-7">
+            <div className="p-3">
+              <div><span className="font-bold">Date:-</span> {viewData?.date}</div>
+              <div><span className="font-bold"> Category:- </span>{viewData?.category?.categoryName}</div>
+              <div><span className="font-bold"> Sub Categories:- </span>{viewData?.subCategories?.name}</div>
+              <div><span className="font-bold"> Category:-</span> {viewData?.category?.categoryName}</div>
+            </div>
+            <div className="p-2">
+              <div><span className="font-bold"> Quantity:- </span>{viewData?.quantity}</div>
+              <div><span className="font-bold"> Due Quantity:- </span>{viewData?.dueQuantity}</div>
+              <div><span className="font-bold"> ml:- </span>{viewData?.ml?.ml}</div>
+              <div><span className="font-bold"> Address:- </span>{viewData?.address}</div>
+            </div>
+            </div>
+          </div>
+        </p>
+      </Dialog>
     </>
   );
 }

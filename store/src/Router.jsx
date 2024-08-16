@@ -18,6 +18,8 @@ import Shop from "./settings/shop/shop";
 import AddShop from "./settings/shop/add-shop";
 import ML from "./settings/ml/ml";
 import AddMl from "./settings/ml/add-ml";
+import ProtectedRoute from "./components/ProtectedRoute";
+
 
 const router = createBrowserRouter([
   {
@@ -30,71 +32,71 @@ const router = createBrowserRouter([
   },
   {
     path: "/admin",
-    element: <AdminDashboard />,
+    element: <ProtectedRoute element={<AdminDashboard />} />,
     children: [
       {
         index: true,
-        element: <Dashbord />,
+        element: <ProtectedRoute element={<Dashbord />} />,
       },
       {
         path: "/admin/purchase",
-        element: <Purchase />,
+        element: <ProtectedRoute element={<Purchase />} />,
       },
       {
         path: "/admin/purchase/Add-purchase",
-        element: <AddPurchase />,
+        element: <ProtectedRoute element={<AddPurchase />} />,
       },
       {
         path: "/admin/disbursement",
-        element: <Disbursement />,
+        element: <ProtectedRoute element={<Disbursement />} />,
       },
       {
         path: "/admin/disbursement/Add-disbursement",
-        element: <AddDisbursement />,
+        element: <ProtectedRoute element={<AddDisbursement />} />,
       },
       {
         path: "/admin/sales",
-        element: <Sales />,
+        element: <ProtectedRoute element={<Sales />} />,
       },
       {
         path: "/admin/sales/Add-sales",
-        element: <AddSales />,
+        element: <ProtectedRoute element={<AddSales />} />,
       },
       {
         path: "/admin/setting/subCategory",
-        element: <SubCategory />,
+        element: <ProtectedRoute element={<SubCategory />} />,
       },
       {
         path: "/admin/setting/Category",
-        element: <Category />,
+        element: <ProtectedRoute element={<Category />} />,
       },
       {
         path: "/admin/setting/shop",
-        element: <Shop />,
+        element: <ProtectedRoute element={<Shop />} />,
       },
       {
         path: "/admin/setting/add-shop",
-        element: <AddShop />,
+        element: <ProtectedRoute element={<AddShop />} />,
       },
       {
         path: "/admin/setting/ml",
-        element: <ML />,
+        element: <ProtectedRoute element={<ML />} />,
       },
       {
         path: "/admin/setting/add-ml",
-        element: <AddMl />,
+        element: <ProtectedRoute element={<AddMl />} />,
       },
       {
         path: "/admin/setting/add-subCategory",
-        element: <AddSubCategory />,
+        element: <ProtectedRoute element={<AddSubCategory />} />,
       },
       {
         path: "/admin/setting/add-Category",
-        element: <AddCategoey />,
+        element: <ProtectedRoute element={<AddCategoey />} />,
       },
       {
         path: "/admin/setting",
-        element: <UserProfile />,
+        element: <ProtectedRoute element={<UserProfile />} />,
       },
     ],
   },

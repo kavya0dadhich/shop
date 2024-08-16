@@ -1,6 +1,9 @@
 table tr th {
   background-color: #ccf6d9;
 }
+table .p-datatable-tbody tr:hover{
+  background: #f3f4f6;
+}
 
 .p-dropdown-filter {
   padding: 10px;
@@ -39,4 +42,29 @@ table tr th {
 .highcharts-axis-title{
   display: none;
 
+}
+/* In your CSS or SCSS file */
+.custom-accept-button {
+  background-color: #28a745 !important;
+  border: none;
+  color: white !important;
+  font-weight: bold;
+  padding: 10px 20px;
+  margin-left: 10px;
+}
+
+.custom-reject-button {
+  padding: 10px 20px;
+  background-color: #dc3545 !important;
+  border: none;
+  color: white !important;
+  font-weight: bold;
+}
+.p-dialog.p-confirm-dialog .p-confirm-dialog-message{
+  margin: 0px !important;
+  /* width: ; */
+}
+.p-stepper-panels{
+  width: 80rem !important;
+  height: 30rem !important;
 }

@@ -14,6 +14,13 @@ import { Dropdown } from "primereact/dropdown";
 import { Calendar } from "primereact/calendar";
 import { Toast } from "primereact/toast";
 import { Tooltip } from 'primereact/tooltip';
+import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
+import { Dialog } from 'primereact/dialog';
+import { Stepper } from 'primereact/stepper';
+import { StepperPanel } from 'primereact/stepperpanel';
+import { Button } from 'primereact/button';
+import { Checkbox } from 'primereact/checkbox';
+
         
 // highChart
 import Highcharts from 'highcharts'
@@ -54,16 +61,21 @@ export {
   useRef,
   Link,
   useLocation,
+  Stepper,
   useNavigate,
   Divider,
+  Button,
   DataTable,
   Column,
   BreadCrumb,
+  StepperPanel,
   Dropdown,
   Calendar,
+  Dialog,
   Toast,
   useFormik,
   Form,
+  Checkbox,
   Formik,
   FilterMatchMode,
   Spinner,
@@ -77,6 +89,8 @@ export {
   MdOutlineWork,
   CiLogout,
   CiMenuFries,
+  ConfirmDialog,
+  confirmDialog,
   CiShop,
   AiTwotoneBuild,
   AiFillEdit,
