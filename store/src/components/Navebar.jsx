@@ -1,7 +1,7 @@
 // import { Link, useNavigate } from "react-router-dom";
 // import { MdOutlineWork } from "react-icons/md";
 // import { IoMdSettings } from "react-icons/io";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useContext } from "react";
 import { CiMenuFries } from "react-icons/ci";
 // import { CiLogout } from "react-icons/ci";
 import { IoMdSearch } from "react-icons/io";
@@ -9,17 +9,20 @@ import { IoNotificationsOutline } from "react-icons/io5";
 import { Link } from "react-router-dom";
 // import { IoNotificationsOutline } from "react-icons/io5";
 // import { TfiAlignRight } from "react-icons/tfi";
-import  eventEmitter  from "../components/eventEmitter";
+import eventEmitter from "../components/eventEmitter";
+import { MyContext } from "./Myprovider";
 
 // eslint-disable-next-line react/prop-types
 function Navebar({ handleDataFromChildNav }) {
   const sendData = () => {
     eventEmitter.emit("dataChanged", "Data from A");
   };
-  useEffect(()=>{
-    sendData()
-  },[])
-  // const [hide, setHide] = useState(false);
+  useEffect(() => {
+    sendData();
+  }, []);
+  const { data } = useContext(MyContext);
+  console.log(data);
+  const [UserData, setUserData] = useState(false);
   // const navigate = useNavigate();
   const inputRef = useRef();
   const [toogHide, setToogHide] = useState(false);
@@ -41,6 +44,11 @@ function Navebar({ handleDataFromChildNav }) {
   const sendDataToParent = () => {
     handleDataFromChildNav(toogHide);
   };
+  useEffect(() => {
+    if (data) {
+      setUserData(data);
+    }
+  }, [data]);
 
   return (
     <>
@@ -69,7 +77,7 @@ function Navebar({ handleDataFromChildNav }) {
             </li>
             <li>
               <CiMenuFries
-                className="max-[903px]:block text-[30px] font-bold text-balck hidden cursor-pointer"
+                className="max-[1318px]:block text-[30px] font-bold text-balck hidden cursor-pointer"
                 onClick={Nhide}
               />
             </li>
@@ -108,7 +116,9 @@ function Navebar({ handleDataFromChildNav }) {
               </div>
             </li>
             <li className="text-end cursor-pointer ">
-              <p className="font-bold tracking-[3px]">Kavya Dadhich</p>
+              <p className="font-bold tracking-[3px]">
+                {UserData.firstName} {UserData.lastName}
+              </p>
               <p>Admin</p>
             </li>
           </ul>

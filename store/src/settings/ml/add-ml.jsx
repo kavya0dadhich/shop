@@ -1,9 +1,14 @@
-import { Calendar, Form, Formik, Link, moment, Spinner, Toast, useNavigate, useRef, useState } from '../../share/dependencies'
+import { BreadCrumb, Calendar, Form, Formik, Link, moment, Spinner, Toast, useNavigate, useRef, useState } from '../../share/dependencies'
 
 function AddMl() {
   const [loading, setLoading] = useState(false);
   const toast = useRef(null);
   const navigate = useNavigate();
+  const items = [
+    { label: "ML", url: "/admin/setting/ml" },
+    { label: "Add ML" },
+  ];
+  const home = { icon: "bi bi-house", url: "/admin" };
   const initialValues = {
     ml: "",
     quantity: 0,
@@ -24,6 +29,7 @@ function AddMl() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
+      credentials: 'include'
     };
     fetch("http://localhost:3000/createML", requestOptions)
       .then((res) => res.json())
@@ -79,7 +85,9 @@ function AddMl() {
   };
   return (
     <>
-      <div className="p-5 bg-[#163832] rounded-md">
+    <div className="p-5">
+    <BreadCrumb model={items} home={home} className="my-5 w-72" />
+      <div className="p-5 bg-[#254e58] rounded-md">
         <Formik initialValues={initialValues} onSubmit={onSubmit}>
           {({ values, handleChange, handleBlur }) => (
             <>
@@ -147,7 +155,7 @@ function AddMl() {
                   </div>
                   <div className="w-[100%] flex justify-end gap-5 mt-3">
                     <button
-                      className="px-5 py-2 text-lg rounded-md active:scale-[0.9] shadow-md bg-[#4f4a41] text-white"
+                      className="px-5 py-2 text-lg rounded-md active:scale-[0.9] shadow-md bg-[#c0fb86] text-black"
                       type="submit"
                     >
                       Submit
@@ -170,6 +178,7 @@ function AddMl() {
       </div>
       <Toast ref={toast} />
       {loading && <Spinner />}
+      </div>
     </>
   );
 }

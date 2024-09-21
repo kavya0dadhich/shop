@@ -1,13 +1,12 @@
 import { ProductLApi } from "../components/apiCall";
 import {
-  AiFillEdit,
   BreadCrumb,
   Column,
   confirmDialog,
   ConfirmDialog,
   DataTable,
-  Dialog,
-  FaEye,
+  // Dialog,
+  // FaEye,
   FilterMatchMode,
   Link,
   MdDelete,
@@ -23,9 +22,9 @@ function Purchase() {
   const home = { icon: "bi bi-house", url: "/admin" };
   const [tableData, setTableData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [viewData, setViewData] = useState(true);
+  // const [viewData, setViewData] = useState(true);
   const toast = useRef(null);
-  const [visible, setVisible] = useState(false);
+  // const [visible, setVisible] = useState(false);
   const [filter, setFilter] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
   });
@@ -41,15 +40,16 @@ function Purchase() {
   };
 
   console.log(tableData);
-  const editItem = (rowData) => {
-    console.log(`Editing item: ${rowData.SalesName}`);
-  };
+  // const editItem = (rowData) => {
+  //   console.log(`Editing item: ${rowData.SalesName}`);
+  // };
   const deleteItem = (rowData) => {
     console.log(rowData._id);
     setLoading(true);
     const requestOptions = {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
     };
     fetch(
       `http://localhost:3000/productDeleteById/${rowData._id}`,
@@ -96,36 +96,76 @@ function Purchase() {
       acceptClassName: "custom-accept-button",
     });
   };
-  const renderDueQuantity = (rowData) => {
-    console.log(rowData);
+  // const renderDueQuantity = (rowData) => {
+  //   return (
+  //     <>
+  //       {/* {rowData.dueQuantity == rowData.quantity ? null : ( */}
+  //       <div className="bg-red-700 text-white text-center w-20 p-1 rounded-lg">
+  //         {rowData.dueQuantity}{" "}
+  //       </div>
+  //       {/* )} */}
+  //     </>
+  //   );
+  // };
+
+  // const viewItem = (rowData) => {
+  //   setVisible(true);
+  //   setViewData(rowData);
+  // };
+  const colorSet = (rowData) => {
+    if (!rowData || !rowData.brandName) {
+      return null;
+    }
     return (
       <>
-        {rowData.dueQuantity == rowData.quantity ? null : (
-          <div className="bg-red-700 text-white text-center w-20 p-1 rounded-lg">
-            {rowData.dueQuantity}{" "}
-          </div>
-        )}
+        <div className="bg-green-700 text-white text-center w-20 p-1 rounded-lg">
+          {rowData.brandName.brandQuantity}
+        </div>
       </>
     );
   };
 
-  const viewItem = (rowData) => {
-    setVisible(true);
-    setViewData(rowData);
-    console.log(rowData);
+  const stockBodyTemplate = (rowData) => {
+    console.log(rowData.category.categoryName);
+    return (
+      <div
+        className={`${
+          rowData.category.categoryName === "Q"
+            ? "bg-red-100 text-red-900"
+            : rowData.category.categoryName === "P"
+            ? "bg-blue-100 text-blue-900"
+            : rowData.category.categoryName === "N"
+            ? "bg-teal-100 text-teal-900"
+            : "bg-gray-100 text-gray-900" // Fallback if none of the conditions match
+        } rounded-full w-[2rem] h-[2rem] inline-flex font-bold justify-center items-center text-sm`}
+      >
+        {rowData.category.categoryName}
+      </div>
+    );
   };
-  const colorSet = (rowData) => {
-    console.log(rowData);
-    if (rowData.quantity) {
-      return (
-        <>
-          <div className="bg-blue-700 text-white text-center w-20 p-1 rounded-lg">
-            {rowData.quantity}
-          </div>
-        </>
-      );
-    }
+
+  console.log(tableData);
+  const filterHandle = (event) => {
+    // Example: assuming the event parameter provides 'filters' and 'filteredValue'
+    const { filters, filteredValue } = event;
+    console.log("filters", filters);
+    console.log("filteredValue", filteredValue);
+    // Update your filters state
   };
+  const totalQuantity = tableData
+    ? tableData.reduce(
+        (total, ele) =>
+          total + ((ele.brandName && ele.brandName.brandQuantity) || 0),
+        0
+      )
+    : 0;
+
+  // const totalDueQuantity = tableData
+  //   ? tableData.reduce((total, ele) => total + (ele.dueQuantity || 0), 0)
+  //   : 0;
+
+  // Footer text
+  // const footer = `In total, there are ${totalQuantity} products, with ${totalDueQuantity} due.`;
   return (
     <>
       <ConfirmDialog />
@@ -167,10 +207,11 @@ function Purchase() {
             value={tableData}
             tableStyle={{ minWidth: "50rem" }}
             paginator
+            onFilter={filterHandle}
             rows={5}
             filters={filter}
             rowsPerPageOptions={[5, 10, 25, 50]}
-            scrollHeight="620px"
+            scrollHeight="580px"
           >
             <Column
               field="invoice"
@@ -188,41 +229,59 @@ function Purchase() {
               field="category.categoryName"
               header="Category"
               sortable
+              body={stockBodyTemplate}
             ></Column>
             <Column
-              field="subCategories.name"
-              header="Sub Categories"
+              field="brandName.name"
+              header="Brand Name"
               sortable
             ></Column>
-            <Column field="ml.ml" header="ML" sortable></Column>
             <Column
-              field="quantity"
-              header="Quantity"
+              field="brandName.Type"
+              header="Brand Name Type"
+              footer={<div className="font-bold text-xl">Total</div>}
+              sortable
+            ></Column>
+            <Column
+              field="brandName.brandQuantity"
+              header="Brand Quantity"
               sortable
               body={colorSet}
+              footer={
+                <div className="bg-green-700 text-white text-center w-20 p-1 rounded-lg">
+                  {totalQuantity}
+                </div>
+              } // Add footer for total quantity
               // style={{ width: "25%" }}
             ></Column>
-            <Column
+            {/* <Column
               field="dueQuantity"
               header="Due Quantity"
               sortable
               body={renderDueQuantity}
+              footer={
+                // totalQuantity === totalDueQuantity ? null : (
+                  <div className="bg-red-700 text-white text-center w-20 p-1 rounded-lg">
+                    {totalDueQuantity}
+                  </div>
+                // )
+              } // Add footer for total due quantity
               // style={{ width: "25%" }}
-            ></Column>
+            ></Column> */}
             <Column
               header="Action"
               body={(rowData) => (
                 <>
                   <div className="flex gap-5 text-[20px] text-black ">
                     {/* className="hover:-translate-y-1 cursor-pointer transition-all" */}
-                    <FaEye
+                    {/* <FaEye
                       onClick={() => viewItem(rowData)}
                       className="cursor-pointer "
-                    />
-                    <AiFillEdit
+                    /> */}
+                    {/* <AiFillEdit
                       onClick={() => editItem(rowData)}
                       className="cursor-pointer "
-                    />
+                    /> */}
                     <MdDelete
                       onClick={() => confirm2(rowData)}
                       className="cursor-pointer"
@@ -236,7 +295,7 @@ function Purchase() {
       </div>
       {loading && <Spinner />}
       <Toast ref={toast} />
-      <Dialog
+      {/* <Dialog
         header="Purchase Details"
         visible={visible}
         style={{ width: "30vw" }}
@@ -251,22 +310,45 @@ function Purchase() {
               Invoice:- {viewData?.invoice}
             </h2>
             <div className="flex gap-7">
-            <div className="p-3">
-              <div><span className="font-bold">Date:-</span> {viewData?.date}</div>
-              <div><span className="font-bold"> Category:- </span>{viewData?.category?.categoryName}</div>
-              <div><span className="font-bold"> Sub Categories:- </span>{viewData?.subCategories?.name}</div>
-              <div><span className="font-bold"> Category:-</span> {viewData?.category?.categoryName}</div>
-            </div>
-            <div className="p-2">
-              <div><span className="font-bold"> Quantity:- </span>{viewData?.quantity}</div>
-              <div><span className="font-bold"> Due Quantity:- </span>{viewData?.dueQuantity}</div>
-              <div><span className="font-bold"> ml:- </span>{viewData?.ml?.ml}</div>
-              <div><span className="font-bold"> Address:- </span>{viewData?.address}</div>
-            </div>
+              <div className="p-3">
+                <div>
+                  <span className="font-bold">Date:-</span> {viewData?.date}
+                </div>
+                <div>
+                  <span className="font-bold"> Category:- </span>
+                  {viewData?.category?.categoryName}
+                </div>
+                <div>
+                  <span className="font-bold"> Sub Categories:- </span>
+                  {viewData?.subCategories?.name}
+                </div>
+                <div>
+                  <span className="font-bold"> Category:-</span>{" "}
+                  {viewData?.category?.categoryName}
+                </div>
+              </div>
+              <div className="p-2">
+                <div>
+                  <span className="font-bold"> Quantity:- </span>
+                  {viewData?.quantity}
+                </div>
+                <div>
+                  <span className="font-bold"> Due Quantity:- </span>
+                  {viewData?.dueQuantity}
+                </div>
+                <div>
+                  <span className="font-bold"> ml:- </span>
+                  {viewData?.ml?.ml}
+                </div>
+                <div>
+                  <span className="font-bold"> Address:- </span>
+                  {viewData?.address}
+                </div>
+              </div>
             </div>
           </div>
         </p>
-      </Dialog>
+      </Dialog> */}
     </>
   );
 }

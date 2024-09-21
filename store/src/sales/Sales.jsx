@@ -1,6 +1,5 @@
 /* eslint-disable no-dupe-keys */
 import {
-  AiFillEdit,
   BreadCrumb,
   Column,
   ConfirmDialog,
@@ -23,22 +22,22 @@ function Sales() {
   const [loading, setLoading] = useState(true);
   const toast = useRef(null);
   useEffect(() => {
-  sailsList()
+    sailsList();
   }, []);
-  function sailsList(){
-    fetch("http://localhost:3000/salesList")
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.result) setTableData(data.result);
-      setLoading(false);
-    })
-    .catch((error) => {
-      console.log(error);
-    });
+  function sailsList() {
+    fetch("http://localhost:3000/salesList", { credentials: "include" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.result) setTableData(data.result);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
-  const editItem = (rowData) => {
-    console.log(`Editing item: ${rowData}`);
-  };
+  // const editItem = (rowData) => {
+  //   console.log(`Editing item: ${rowData}`);
+  // };
   const setProductdetails = (rowData) => {
     console.log(rowData);
     // if (rowData.updatedProductAll) {
@@ -73,45 +72,43 @@ function Sales() {
     console.log(rowData._id);
     setLoading(true);
     const requestOptions = {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
     };
-    fetch(
-        `http://localhost:3000/salesDelete/${rowData._id}`,
-        requestOptions
-    )
-        .then((res) => res.json())
-        .then((data) => {
-            console.log(data);
-            if (data.status === "success") {
-                toast.current.show({
-                    severity: "success",
-                    life: 3000,
-                    summary: "Success",
-                    detail: data.message,
-                });
-                sailsList();
-            } else {
-                toast.current.show({
-                    severity: "error",
-                    life: 3000,
-                    summary: "Error",
-                    detail: data.message,
-                });
-            }
-            setLoading(false);
-        })
-        .catch((error) => {
-            console.log(error);
-            toast.current.show({
-                severity: "error",
-                life: 3000,
-                summary: "Error",
-                detail: "An unexpected error occurred.",
-            });
-            setLoading(false);
+    fetch(`http://localhost:3000/salesDelete/${rowData._id}`, requestOptions)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        if (data.status === "success") {
+          toast.current.show({
+            severity: "success",
+            life: 3000,
+            summary: "Success",
+            detail: data.message,
+          });
+          sailsList();
+        } else {
+          toast.current.show({
+            severity: "error",
+            life: 3000,
+            summary: "Error",
+            detail: data.message,
+          });
+        }
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.log(error);
+        toast.current.show({
+          severity: "error",
+          life: 3000,
+          summary: "Error",
+          detail: "An unexpected error occurred.",
         });
-};
+        setLoading(false);
+      });
+  };
   const confirm2 = (rowData) => {
     confirmDialog({
       message: "Do you want to delete this record?",
@@ -155,9 +152,13 @@ function Sales() {
       </>
     );
   };
+
+  const totalSalesQ = tableData
+    ? tableData.reduce((total, ele) => total + (ele.salesQuntity || 0), 0)
+    : 0;
   return (
     <>
-     <ConfirmDialog />
+      <ConfirmDialog />
       <div className="p-5">
         <BreadCrumb model={items} home={home} className="my-5 w-52" />
         <div className="p-5 bg-[#163832] rounded-md">
@@ -181,7 +182,7 @@ function Sales() {
             paginator
             rows={5}
             rowsPerPageOptions={[5, 10, 25, 50]}
-            scrollHeight="620px"
+            scrollHeight="580px"
           >
             <Column field="date" header="Date" sortable></Column>
             <Column field="typeOfSale" header="Type Of Sales" sortable></Column>
@@ -190,12 +191,18 @@ function Sales() {
               header="Quntity"
               sortable
               body={colorSetBlue}
+              footer={<div className="font-bold">Total</div>}
             ></Column>
             <Column
               field="salesQuntity"
               header="Sales Quntity"
               sortable
               body={colorSetRed}
+              footer={
+                <div className="bg-red-700 text-white text-center w-20 p-1 rounded-lg">
+                  {totalSalesQ}
+                </div>
+              }
             ></Column>
             <Column
               field="updatedProductAll"
@@ -209,13 +216,13 @@ function Sales() {
                 <>
                   <div className="flex gap-5 text-[20px] text-black ">
                     <FaEye
-                      onClick={() => editItem(rowData)}
+                      // onClick={() => editItem(rowData)}
                       className="cursor-pointer "
                     />
-                    <AiFillEdit
+                    {/* <AiFillEdit
                       onClick={() => editItem(rowData)}
                       className="cursor-pointer "
-                    />
+                    /> */}
                     <MdDelete
                       onClick={() => confirm2(rowData)}
                       className="cursor-pointer"

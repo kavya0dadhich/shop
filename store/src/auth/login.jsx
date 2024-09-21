@@ -2,19 +2,23 @@
 
 import loginPage from "../assets/loginPage.svg";
 import { Toast } from "primereact/toast";
-import { useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useFormik } from "formik";
 import { useNavigate } from "react-router";
 import { FaEyeSlash } from "react-icons/fa";
 import { FaEye } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { MyContext } from "../components/Myprovider";
+import { Checkbox } from "primereact/checkbox";
 
 function login() {
+  
   const toast = useRef(null);
   const [hide, setHide] = useState(false);
   const navigate = useNavigate();
-  function showPassword(){
-    setHide(!hide)
+  const [checked, setChecked] = useState(false);
+  function showPassword() {
+    setHide(!hide);
   }
   const formik = useFormik({
     initialValues: {
@@ -23,13 +27,12 @@ function login() {
     },
     // validationSchema: purchaseSchema,
     onSubmit: (values) => {
-      console.log(values, formik);
       setValue(values);
     },
   });
   function setValue(value) {
     const data = {
-      role: ['Admin'],
+      role: ["Admin"],
       email: value.email,
       password: value.password,
     };
@@ -37,10 +40,10 @@ function login() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
-      credentials: 'include',
+      credentials: "include",
     };
     fetch("http://localhost:3000/login", requestOptions)
-      .then((res) => res.json())
+    .then((res) => res.json())
       .then((resp) => {
         console.log(resp);
         if (resp.status == "success") {
@@ -50,9 +53,14 @@ function login() {
             summary: "Success",
             detail: resp.message,
           });
+          // const data = {
+          //   email: resp.registerUser.email,
+          //   password: resp.registerUser.password,
+          // };
+          localStorage.setItem("user", JSON.stringify(resp.registerUser));
           setTimeout(() => {
             navigate("/admin");
-          }, 2500);
+          }, 500);
         } else {
           toast.current.show({
             severity: "error",
@@ -63,6 +71,25 @@ function login() {
         }
       });
   }
+  // useEffect(() => {
+  //   const Data = JSON.parse(localStorage.getItem("user"));
+    
+  //   if (Data && !checked) {
+  //     formik.setFieldValue("email", Data.email);
+  //     formik.setFieldValue("password", Data.password);
+  //     setChecked(false);  // Set checked to true after setting form values
+  //   } else if (!checked && !Data) {
+  //     localStorage.clear(); // Clear localStorage only if there's no data and checkbox is unchecked
+  //   }
+  // }, [checked, formik]);
+  
+  const handleCheckboxChange = (e) => {
+    // setChecked(e.checked);
+    //   console.log(e.checked);
+    // if (e.checked == false) {
+    //   localStorage.clear();  // Clear localStorage when checkbox is unchecked
+    // }
+  };
   return (
     <>
       <div className="flex flex-wrap h-screen bg-[#FFF7F1]">
@@ -102,11 +129,28 @@ function login() {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                   />
-                  <div className="absolute cursor-pointer text-2xl right-5 bottom-7" onClick={showPassword}>
-                    {!hide ? <FaEyeSlash /> :  <FaEye />}
+                  <div
+                    className="absolute cursor-pointer text-2xl right-5 bottom-7"
+                    onClick={showPassword}
+                  >
+                    {!hide ? <FaEyeSlash /> : <FaEye />}
                   </div>
                 </div>
-                <div className="w-[100%] flex justify-end gap-5 ">
+                <div className="w-[100%] flex justify-between gap-5 ">
+                  <div className="">
+                    <Checkbox
+                      onChange={handleCheckboxChange}
+                      checked={checked}
+                      inputId="ingredient1"
+                      className="cursor-pointer"
+                    ></Checkbox>
+                    <label
+                      htmlFor="ingredient1"
+                      className="ml-2 cursor-pointer text-white"
+                    >
+                      Remember Me
+                    </label>
+                  </div>
                   <div className="text-blue-500 text-sm cursor-pointer hover:underline">
                     Forgot Password ?
                   </div>
@@ -121,10 +165,12 @@ function login() {
                 </div>
               </form>
             </div>
-            <Link to={'/registration'} > <div className="bg-[#163832] p-4 rounded-lg text-[13px] cursor-pointer mt-3 text-white ">
-              You Want To Create Account ?
-            </div> 
-            </Link>
+            {/* <Link>
+              {" "}
+              <div className="bg-[#163832] p-4 rounded-lg text-[13px] cursor-pointer mt-3 text-white ">
+                You Want To Create Account ?
+              </div>
+            </Link> */}
           </div>
         </div>
       </div>

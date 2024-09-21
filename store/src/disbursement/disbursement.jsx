@@ -9,7 +9,6 @@
 // import { FilterMatchMode } from "primereact/api";
 // import { Spinner } from "../components/spinner";
 import {
-  AiFillEdit,
   BreadCrumb,
   Column,
   DataTable,
@@ -36,10 +35,10 @@ function Disbursement() {
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
   });
   useEffect(() => {
-    fetch("http://localhost:3000/dirspermentList")
+    fetch("http://localhost:3000/dirspermentList",{credentials: "include",})
       .then((res) => res.json())
       .then((data) => {
-        if (!tableData.length) {
+        if (data.status == 'success') {
           setLoading(false);
           setTableData(data.result);
         }
@@ -54,9 +53,9 @@ function Disbursement() {
   //   detail: "data.message",
   // });
   console.log(tableData);
-  const editItem = (rowData) => {
-    console.log(`Editing item: ${rowData.SalesName}`);
-  };
+  // const editItem = (rowData) => {
+  //   console.log(`Editing item: ${rowData.SalesName}`);
+  // };
   // const setColor = (rowData) => (
   //   <div className="text-red-400">{rowData.ml}ml</div>
   // );
@@ -119,7 +118,7 @@ function Disbursement() {
             rows={5}
             filters={filter}
             rowsPerPageOptions={[5, 10, 25, 50]}
-            scrollHeight="620px"
+            scrollHeight="580px"
           >
             <Column field="date" header="Date" sortable></Column>
             <Column
@@ -145,16 +144,17 @@ function Disbursement() {
               header="Action"
               body={(rowData) => (
                 <>
+                {console.log(rowData)}
                   <div className="flex gap-5 text-[20px] text-black ">
                     {/* className="hover:-translate-y-1 cursor-pointer transition-all" */}
                     <FaEye
-                      onClick={() => editItem(rowData)}
+                      // onClick={() => editItem(rowData)}
                       className="cursor-pointer "
                     />
-                    <AiFillEdit
+                    {/* <AiFillEdit
                       onClick={() => editItem(rowData)}
                       className="cursor-pointer "
-                    />
+                    /> */}
                   </div>
                 </>
               )}

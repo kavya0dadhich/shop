@@ -1,21 +1,15 @@
-import { useEffect, useState } from "react";
-import { FaEye } from "react-icons/fa";
-import { AiFillEdit } from "react-icons/ai";
-import { Column } from "primereact/column";
-import { DataTable } from "primereact/datatable";
-import { Link } from "react-router-dom";
-import { FilterMatchMode } from "primereact/api";
-import { Spinner } from "../../components/spinner";
-
+import { BreadCrumb, Column, ConfirmDialog, DataTable, FaEye, FilterMatchMode, Link, Spinner, useEffect, useState } from '../../share/dependencies'
 
 function ML() {
   const [loading, setLoading] = useState(true);
+  const items = [{ label: "ML", url: "/admin/setting/ml" }];
+  const home = { icon: "bi bi-house", url: "/admin" };
   const [filter, setFilter] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
   });
   const [ml, setMl] = useState([]);
   useEffect(() => {
-    fetch("http://localhost:3000/ML_List")
+    fetch("http://localhost:3000/ML_List",{credentials: 'include'})
       .then((res) => res.json())
       .then((data) => {
         setLoading(false)
@@ -25,11 +19,14 @@ function ML() {
         console.log(error);
       });
   }, []);
-  const editItem = (rowData) => {
-    console.log(`Editing item: ${rowData}`);
-  };
+  // const editItem = (rowData) => {
+  //   console.log(`Editing item: ${rowData}`);
+  // };
   return (
     <>
+    <ConfirmDialog />
+      <div className="p-5">
+        <BreadCrumb model={items} home={home} className="my-5 w-72" />
           <div className="p-5 bg-[#163832] rounded-md">
             <div className="flex justify-between items-center mb-2 flex-wrap">
               <div className="flex w-[40%]">
@@ -69,7 +66,7 @@ function ML() {
               filters={filter}
               rows={10}
               rowsPerPageOptions={[5, 10, 25, 50, 100]}
-              scrollHeight="620px" 
+              scrollHeight="580px" 
             >
               <Column
                 field="ml"
@@ -85,16 +82,17 @@ function ML() {
                 header="Action"
                 body={(rowData) => (
                   <>
+                  {console.log(rowData)}
                     <div className="flex gap-5 text-[20px] text-black ">
                       {/* className="hover:-translate-y-1 cursor-pointer transition-all" */}
                       <FaEye
-                        onClick={() => editItem(rowData)}
+                        // onClick={() => editItem(rowData)}
                         className="cursor-pointer "
                       />
-                      <AiFillEdit
+                      {/* <AiFillEdit
                         onClick={() => editItem(rowData)}
                         className="cursor-pointer "
-                      />
+                      /> */}
                     </div>
                   </>
                 )}
@@ -102,6 +100,7 @@ function ML() {
             </DataTable>
           </div>
           {loading && <Spinner />}
+          </div>
     </>
   );
 }

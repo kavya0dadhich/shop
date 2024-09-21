@@ -19,6 +19,9 @@ import AddShop from "./settings/shop/add-shop";
 import ML from "./settings/ml/ml";
 import AddMl from "./settings/ml/add-ml";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Ostock from "./openingStock/Ostock";
+import AddOstock from "./openingStock/Add-Ostock";
+import TotalStock from "./TotalStock/TotalStock";
 
 
 const router = createBrowserRouter([
@@ -43,6 +46,14 @@ const router = createBrowserRouter([
         element: <ProtectedRoute element={<Purchase />} />,
       },
       {
+        path: "/admin/O-stock",
+        element: <ProtectedRoute element={<Ostock />} />,
+      },
+      {
+        path: "/admin/O-stock/Add-Ostock",
+        element: <ProtectedRoute element={<AddOstock />} />,
+      },
+      {
         path: "/admin/purchase/Add-purchase",
         element: <ProtectedRoute element={<AddPurchase />} />,
       },
@@ -57,6 +68,10 @@ const router = createBrowserRouter([
       {
         path: "/admin/sales",
         element: <ProtectedRoute element={<Sales />} />,
+      },
+      {
+        path: "/admin/total-stock",
+        element: <ProtectedRoute element={<TotalStock />} />,
       },
       {
         path: "/admin/sales/Add-sales",

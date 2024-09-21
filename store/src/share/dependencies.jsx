@@ -1,6 +1,6 @@
 // dependencies.js
 // React and hooks
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef , useContext } from "react";
 
 // React Router
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -20,6 +20,8 @@ import { Stepper } from 'primereact/stepper';
 import { StepperPanel } from 'primereact/stepperpanel';
 import { Button } from 'primereact/button';
 import { Checkbox } from 'primereact/checkbox';
+import { SelectButton } from 'primereact/selectbutton';
+        
 
         
 // highChart
@@ -34,6 +36,7 @@ import { FilterMatchMode } from "primereact/api";
 
 // Custom Components
 import { Spinner } from "../components/spinner";
+import { MyContext } from "../components/Myprovider";
 // Moment.js
 import moment from "moment";
 
@@ -50,6 +53,7 @@ import { IoMdSearch, IoMdSettings } from "react-icons/io";
 import { IoNotificationsOutline } from "react-icons/io5";
 import { RiArrowGoBackFill } from "react-icons/ri";
 import { MdDelete } from "react-icons/md";
+import { AiOutlineStock } from "react-icons/ai";
 
 // Export everything
 export {
@@ -62,16 +66,20 @@ export {
   Link,
   useLocation,
   Stepper,
+  AiOutlineStock,
   useNavigate,
   Divider,
   Button,
   DataTable,
   Column,
+  useContext,
   BreadCrumb,
   StepperPanel,
   Dropdown,
   Calendar,
   Dialog,
+  SelectButton,
+  MyContext,
   Toast,
   useFormik,
   Form,

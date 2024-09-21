@@ -1,11 +1,25 @@
-import  { BreadCrumb, Calendar, Dropdown, Link, moment, RiArrowGoBackFill, Spinner, Toast, useEffect, useFormik, useNavigate, useRef, useState } from '../share/dependencies'
-
+import {
+  BreadCrumb,
+  Calendar,
+  Dropdown,
+  Link,
+  moment,
+  RiArrowGoBackFill,
+  Spinner,
+  Toast,
+  useEffect,
+  useFormik,
+  useNavigate,
+  useRef,
+  useState,
+} from "../share/dependencies";
+import { TotalStockListApi } from "../components/apiCall";
 function AddSales() {
   const items = [
-    { label: 'Sales', url:"/admin/sales" },
-    { label: 'Add Sales',  },
-];
-const home = { icon: 'bi bi-house', url: '/admin' };
+    { label: "Sales", url: "/admin/sales" },
+    { label: "Add Sales" },
+  ];
+  const home = { icon: "bi bi-house", url: "/admin" };
   let today = new Date();
   let month = today.getMonth();
   let year = today.getFullYear();
@@ -28,50 +42,57 @@ const home = { icon: 'bi bi-house', url: '/admin' };
   const [shop, setShop] = useState(null);
   // eslint-disable-next-line no-unused-vars
   const [DataTable, setDataTable] = useState(false);
-  const [productData, setProductData] = useState([]);
+  const [totalStock, setTotalStock] = useState([]);
   const [loading, setLoading] = useState(false);
   const toast = useRef(null);
   const navigate = useNavigate();
 
-  const typeOfSale = [
-    { name: "Product", code: "PO" },
-    { name: "Shop", code: "SH" },
-  ];
-  function productList() {
-    fetch("http://localhost:3000/productList")
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data.result);
-        if (data.result && data.result.length) {
-          const formattedData = data.result.map((element) => ({
-            _id: element._id,
-            list: `${element.category.categoryName},${element.subCategories.name}, ML-${element.ml.ml}`,
-            dueQuantity: element.dueQuantity,
-          }));
-          setProductData(formattedData);
-        }
-        console.log(productData);
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-      });
-  }
-  function shopList() {
-    fetch("http://localhost:3000/shopList")
-      .then((res) => res.json())
-      .then((data) => {
-        setShop(data.result);
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-      });
-  }
+  // const typeOfSale = [
+  //   { name: "Product", code: "PO" },
+  //   { name: "Shop", code: "SH" },
+  // ];
+  // function productList() {
+  //   fetch("http://localhost:3000/productList",{credentials: 'include'})
+  //     .then((res) => res.json())
+  //     .then((data) => {
+  //       console.log(data.result);
+  //       if (data.result && data.result.length) {
+  //         const formattedData = data.result.map((element) => ({
+  //           _id: element._id,
+  //           list: `${element.category.categoryName},${element.subCategories.name}, ML-${element.ml.ml}`,
+  //           dueQuantity: element.dueQuantity,
+  //         }));
+  //         setProductData(formattedData);
+  //       }
+  //       console.log(productData);
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error fetching data:", error);
+  //     });
+  // }
+  const TotalStockList = async () => {
+    // fetch("http://localhost:3000/shopList",{credentials: 'include'})
+    //   .then((res) => res.json())
+    //   .then((data) => {
+    //     setShop(data.result);
+    //   })
+    //   .catch((error) => {
+    //     console.error("Error fetching data:", error);
+    //   });
+    const result = await TotalStockListApi();
+    console.log(result);
+    const data = result.map((ele) => ({
+      List: `${ele.category.categoryName},${ele.brandName.name}`,
+      _id: ele._id,
+      dueBrandQuantity: ele.dueBrandQuantity,
+    }));
+    setTotalStock(data);
+  };
   useEffect(() => {
-    productList();
-    shopList();
+    TotalStockList();
   }, []);
   const initialValues = {
-    typeOfSale: "",
+    totalStock: "",
     productId: "",
     shopId: "",
     date: "",
@@ -88,7 +109,7 @@ const home = { icon: 'bi bi-house', url: '/admin' };
     if (value.code == "PO") {
       setDataTable(false);
     }
-    formik.setFieldValue("quantity", '');
+    formik.setFieldValue("quantity", "");
     formik.setFieldValue("salesQuntity", "");
   };
   const shopHandleChange = (e) => {
@@ -135,6 +156,7 @@ const home = { icon: 'bi bi-house', url: '/admin' };
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(shopData),
+        credentials: "include",
       };
       console.log(shopData);
       fetch("http://localhost:3000/salesCreate", requestOptions)
@@ -179,6 +201,7 @@ const home = { icon: 'bi bi-house', url: '/admin' };
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(productData),
+        credentials: "include",
       };
       console.log(productData);
       fetch("http://localhost:3000/salesCreate", requestOptionss)
@@ -222,29 +245,29 @@ const home = { icon: 'bi bi-house', url: '/admin' };
   };
   return (
     <>
-     <div className="p-5">
-     <BreadCrumb model={items} home={home} className="my-5 w-72"/>
-      <div className="p-5 bg-[#254e58] rounded-md text-white">
-        <div className="flex justify-between items-center mb-2 flex-wrap">
-          <div>
-            {" "}
-            <h1 className="text-2xl max-[428px]:w-[100%] max-[428px]:mb-3">
-              Add Sales
-            </h1>
+      <div className="p-5">
+        <BreadCrumb model={items} home={home} className="my-5 w-72" />
+        <div className="p-5 bg-[#254e58] rounded-md text-white">
+          <div className="flex justify-between items-center mb-2 flex-wrap">
+            <div>
+              {" "}
+              <h1 className="text-2xl max-[428px]:w-[100%] max-[428px]:mb-3">
+                Add Sales
+              </h1>
+            </div>
+            <p>
+              <Link to={"/sales"} className="text-white flex items-center">
+                <RiArrowGoBackFill className="mr-2" />
+                Back
+              </Link>
+            </p>
           </div>
-          <p>
-            <Link to={"/sales"} className="text-white flex items-center">
-              <RiArrowGoBackFill className="mr-2" />
-              Back
-            </Link>
-          </p>
-        </div>
-        <form
-          action=""
-          className="flex justify-between flex-wrap"
-          onSubmit={formik.handleSubmit}
-        >
-          {/* <div className="w-[32%] max-[860px]:w-[49%] max-[622px]:w-[100%]">
+          <form
+            action=""
+            className="flex justify-between flex-wrap"
+            onSubmit={formik.handleSubmit}
+          >
+            {/* <div className="w-[32%] max-[860px]:w-[49%] max-[622px]:w-[100%]">
                 <label htmlFor="salesName" className="text-[17px]">
                   Sales Name<span className="text-red-500">*</span>
                 </label>
@@ -264,177 +287,175 @@ const home = { icon: 'bi bi-house', url: '/admin' };
                   </p>
                 ) : null}
               </div> */}
-          <div className="w-[32%] max-[860px]:w-[49%] max-[622px]:w-[100%]">
-            <label htmlFor="" className="text-[17px] text-white">
-              Date<span className="text-red-500">*</span>
-            </label>
-            <Calendar
-              value={formik.values.date}
-              className="w-full md:w-14rem mt-2 mb-4 h-12 text-black"
-              onChange={(e) => formik.setFieldValue("date", e.value)}
-              onBlur={formik.handleBlur}
-              minDate={minDate}
-              maxDate={maxDate}
-              readOnlyInput
-              showIcon
-              name="date"
-              onFocus={handleCalendarFocus}
-            />
-          </div>
-          <div className="w-[32%] max-[860px]:w-[49%] max-[622px]:w-[100%]">
-            <label htmlFor="" className="text-[17px]">
-              Type Of Sale<span className="text-red-500">*</span>
-            </label>
-            <Dropdown
-              showClear
-              options={typeOfSale}
-              optionLabel="name"
-              placeholder="Select Type Of Sale"
-              filter
-              name="typeOfSale"
-              onChange={handleChange}
-              onBlur={formik.handleBlur}
-              value={formik.values.typeOfSale}
-              className="w-full md:w-14rem mt-2"
-            />
-            {formik.errors.typeOfSale && formik.touched.typeOfSale ? (
-              <p className="text-red-500 mt-1 mb-2">
-                {formik.errors.typeOfSale}
-              </p>
-            ) : null}
-          </div>
-          {value == "PO" && (
-            <>
-              <div className="w-[32%] max-[860px]:w-[49%] max-[622px]:w-[100%]">
-                <label htmlFor="productId" className="text-[17px] text-white">
-                  Product details<span className="text-red-500">*</span>
-                </label>
-                <Dropdown
-                  showClear
-                  value={formik.values.productId}
-                  onChange={(e) => {
-                    formik.setFieldValue("productId", e.value);
-                    console.log(e.value);
-                    const selectedProduct = productData.find(
-                      (product) => product._id === e.target.value._id
-                    );
-                    console.log(selectedProduct);
-                    if (selectedProduct) {
-                      formik.setFieldValue(
-                        "quantity",
-                        selectedProduct.dueQuantity
+            <div className="w-[32%] max-[860px]:w-[49%] max-[622px]:w-[100%]">
+              <label htmlFor="" className="text-[17px] text-white">
+                Date<span className="text-red-500">*</span>
+              </label>
+              <Calendar
+                value={formik.values.date}
+                className="w-full md:w-14rem mt-2 mb-4 h-12 text-black"
+                onChange={(e) => formik.setFieldValue("date", e.value)}
+                onBlur={formik.handleBlur}
+                readOnlyInput
+                showIcon
+                name="date"
+                onFocus={handleCalendarFocus}
+              />
+            </div>
+            <div className="w-[32%] max-[860px]:w-[49%] max-[622px]:w-[100%]">
+              <label htmlFor="" className="text-[17px]">
+                Type Of Sale<span className="text-red-500">*</span>
+              </label>
+              <Dropdown
+                showClear
+                options={totalStock}
+                optionLabel="list"
+                placeholder="Select Type Of Sale"
+                filter
+                name="List"
+                onChange={handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.totalStock}
+                className="w-full md:w-14rem mt-2"
+              />
+              {formik.errors.totalStock && formik.touched.totalStock ? (
+                <p className="text-red-500 mt-1 mb-2">
+                  {formik.errors.totalStock}
+                </p>
+              ) : null}
+            </div>
+            {value == "PO" && (
+              <>
+                <div className="w-[32%] max-[860px]:w-[49%] max-[622px]:w-[100%]">
+                  <label htmlFor="productId" className="text-[17px] text-white">
+                    Product details<span className="text-red-500">*</span>
+                  </label>
+                  <Dropdown
+                    showClear
+                    value={formik.values.productId}
+                    onChange={(e) => {
+                      formik.setFieldValue("productId", e.value);
+                      console.log(e.value);
+                      const selectedProduct = productData.find(
+                        (product) => product._id === e.target.value._id
                       );
-                    }
-                  }}
-                  onBlur={formik.handleBlur}
-                  options={productData}
-                  optionLabel="list"
-                  optionValue="_id"
-                  placeholder="Select Product"
-                  filter
-                  name="productId"
-                  className="w-full md:w-14rem mt-2 mb-4"
-                />
-              </div>
-            </>
-          )}
+                      console.log(selectedProduct);
+                      if (selectedProduct) {
+                        formik.setFieldValue(
+                          "quantity",
+                          selectedProduct.dueQuantity
+                        );
+                      }
+                    }}
+                    onBlur={formik.handleBlur}
+                    options={productData}
+                    optionLabel="list"
+                    optionValue="_id"
+                    placeholder="Select Product"
+                    filter
+                    name="productId"
+                    className="w-full md:w-14rem mt-2 mb-4"
+                  />
+                </div>
+              </>
+            )}
 
-          {value == "SH" && (
-            <>
-              <div className="w-[32%] max-[860px]:w-[49%] max-[622px]:w-[100%]">
-                <label htmlFor="shopId" className="text-[17px] text-white">
-                  Shop Name<span className="text-red-500">*</span>
-                </label>
-                <Dropdown
-                  showClear
-                  value={formik.values.shopId}
-                  onChange={shopHandleChange}
-                  onBlur={formik.handleBlur}
-                  options={shop}
-                  optionLabel="shopName"
-                  optionValue="_id"
-                  placeholder="Select Shop details"
-                  filter
-                  name="shopId"
-                  className="w-full md:w-14rem mt-2 mb-4"
-                />
-              </div>
-              <div className="w-[32%] max-[860px]:w-[49%] max-[622px]:w-[100%]">
-                <label htmlFor="shopId" className="text-[17px] text-white">
-                  Shop Product details<span className="text-red-500">*</span>
-                </label>
-                <Dropdown
-                  showClear
-                  value={formik.values.shopProductSale}
-                  onChange={shopHandleForProduct}
-                  onBlur={formik.handleBlur}
-                  options={ShopDrop}
-                  optionLabel="list"
-                  optionValue="_id"
-                  placeholder="Select Product Of Shop"
-                  filter
-                  name="shopProductSale"
-                  className="w-full md:w-14rem mt-2 mb-4"
-                />
-              </div>
-            </>
-          )}
-          <div className="w-[32%] max-[860px]:w-[49%] max-[622px]:w-[100%]">
-            <label htmlFor="quantity" className="text-[17px] text-white">
-              Product Quantity<span className="text-red-500">*</span>
-            </label>
-            <input
-              className="w-full p-3 shadow-sm rounded-md outline-none mt-2 mb-4 text-black"
-              readOnly
-              placeholder="Product Quantity"
-              type="text"
-              name="quantity"
-              id="quantity"
-              value={formik.values.quantity}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-            />
-          </div>
-          <div className="w-[32%] max-[860px]:w-[49%] max-[622px]:w-[100%]">
-            <label htmlFor="salesQuntity" className="text-[17px]">
-              Sales Quantity<span className="text-red-500">*</span>
-            </label>
-            <input
-              className="w-full p-3 shadow-sm rounded-md outline-none mt-2 text-black"
-              placeholder="Sales Quantity"
-              type="number"
-              name="salesQuntity"
-              id="salesQuntity"
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              value={formik.values.salesQuntity}
-            />
-            {/* {formik.errors.salesQuntity && formik.touched.salesQuntity ? (
+            {value == "SH" && (
+              <>
+                <div className="w-[32%] max-[860px]:w-[49%] max-[622px]:w-[100%]">
+                  <label htmlFor="shopId" className="text-[17px] text-white">
+                    Shop Name<span className="text-red-500">*</span>
+                  </label>
+                  <Dropdown
+                    showClear
+                    value={formik.values.shopId}
+                    onChange={shopHandleChange}
+                    onBlur={formik.handleBlur}
+                    options={shop}
+                    optionLabel="shopName"
+                    optionValue="_id"
+                    placeholder="Select Shop details"
+                    filter
+                    name="shopId"
+                    className="w-full md:w-14rem mt-2 mb-4"
+                  />
+                </div>
+                <div className="w-[32%] max-[860px]:w-[49%] max-[622px]:w-[100%]">
+                  <label htmlFor="shopId" className="text-[17px] text-white">
+                    Shop Product details<span className="text-red-500">*</span>
+                  </label>
+                  <Dropdown
+                    showClear
+                    value={formik.values.shopProductSale}
+                    onChange={shopHandleForProduct}
+                    onBlur={formik.handleBlur}
+                    options={ShopDrop}
+                    optionLabel="list"
+                    optionValue="_id"
+                    placeholder="Select Product Of Shop"
+                    filter
+                    name="shopProductSale"
+                    className="w-full md:w-14rem mt-2 mb-4"
+                  />
+                </div>
+              </>
+            )}
+            <div className="w-[32%] max-[860px]:w-[49%] max-[622px]:w-[100%]">
+              <label htmlFor="quantity" className="text-[17px] text-white">
+                Product Quantity<span className="text-red-500">*</span>
+              </label>
+              <input
+                className="w-full p-3 shadow-sm rounded-md outline-none mt-2 mb-4 text-black"
+                readOnly
+                placeholder="Product Quantity"
+                type="text"
+                name="quantity"
+                id="quantity"
+                value={formik.values.quantity}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+              />
+            </div>
+            <div className="w-[32%] max-[860px]:w-[49%] max-[622px]:w-[100%]">
+              <label htmlFor="salesQuntity" className="text-[17px]">
+                Sales Quantity<span className="text-red-500">*</span>
+              </label>
+              <input
+                className="w-full p-3 shadow-sm rounded-md outline-none mt-2 text-black"
+                placeholder="Sales Quantity"
+                type="number"
+                name="salesQuntity"
+                id="salesQuntity"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.salesQuntity}
+              />
+              {/* {formik.errors.salesQuntity && formik.touched.salesQuntity ? (
                   <p className="text-red-500 mt-1 mb-2">
                     {formik.errors.salesQuntity}
                   </p>
                 ) : null} */}
-          </div>
-          <div className="w-[32%] max-[860px]:w-[49%] max-[622px]:w-[100%]"></div>
-          <div className="w-[100%] flex justify-end gap-5 mt-3">
-            <button
-              className="px-5 py-2 text-lg rounded-md active:scale-[0.9] shadow-md bg-[#c0fb86] text-black"
-              type="submit"
-            >
-              Submit
-            </button>
-            <Link to={"/admin/sales"}>
+            </div>
+            <div className="w-[32%] max-[860px]:w-[49%] max-[622px]:w-[100%]"></div>
+            <div className="w-[100%] flex justify-end gap-5 mt-3">
               <button
-                className="px-5 py-2 text-lg rounded-md active:scale-[0.9] shadow-md bg-zinc-400 text-white"
-                type="button"
+                className="px-5 py-2 text-lg rounded-md active:scale-[0.9] shadow-md bg-[#c0fb86] text-black"
+                type="submit"
               >
-                Cancel
+                Submit
               </button>
-            </Link>
-          </div>
-        </form>
+              <Link to={"/admin/sales"}>
+                <button
+                  className="px-5 py-2 text-lg rounded-md active:scale-[0.9] shadow-md bg-zinc-400 text-white"
+                  type="button"
+                >
+                  Cancel
+                </button>
+              </Link>
+            </div>
+          </form>
+        </div>
       </div>
-     </div>
       {loading && <Spinner />}
       <Toast ref={toast} />
     </>

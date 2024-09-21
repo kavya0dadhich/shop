@@ -1,99 +1,75 @@
-import { SubCategorieslist } from "../../components/apiCall";
+import { TotalStockListApi } from "../components/apiCall";
 import {
   BreadCrumb,
   Column,
-  confirmDialog,
-  ConfirmDialog,
   DataTable,
   FilterMatchMode,
-  Link,
-  MdDelete,
+  //   Link,
+  //   MdDelete,
   Spinner,
   Toast,
   useEffect,
   useRef,
   useState,
-} from "../../share/dependencies";
-
-function SubCategory() {
-  const items = [{ label: "Brand", url: "/admin/setting/subCategory" }];
+} from "../share/dependencies";
+function TotalStock() {
+  const items = [{ label: "Total Stock", url: "/admin/total-stock" }];
   const home = { icon: "bi bi-house", url: "/admin" };
   const [loading, setLoading] = useState(true);
+  const [totalStockData, setTotalStockData] = useState();
   const toast = useRef(null);
   const [filter, setFilter] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
   });
-  const [subCategories, setSubCategories] = useState([]);
-  useEffect(() => {
-    subCategoryAIPData();
-  }, []);
-  const subCategoryAIPData = async () => {
-    const result = await SubCategorieslist();
-    if (result instanceof Error) console.log("API feach to fail data");
+  const totalStockList = async () => {
+    const result = await TotalStockListApi();
     setLoading(false);
+    setTotalStockData(result);
     console.log(result);
-    setSubCategories(result);
   };
-  const deleteItem = (rowData) => {
-    console.log(rowData._id);
-    setLoading(true);
-    const requestOptions = {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-    };
-    fetch(
-      `http://localhost:3000/subCategoriesDelete/${rowData._id}`,
-      requestOptions
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-        if (data.status == "success") {
-          toast.current.show({
-            severity: "success",
-            life: 3000,
-            summary: "Success",
-            detail: data.message,
-          });
-          setLoading(false);
-          subCategoryAIPData();
-        } else {
-          toast.current.show({
-            severity: "error",
-            life: 3000,
-            summary: "Error",
-            detail: data.message,
-          });
-          setLoading(false);
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+  useEffect(() => {
+    totalStockList();
+  }, []);
+  const stockBodyTemplate = (rowData) => {
+    console.log(rowData.category.categoryName);
+    return (
+      <div
+        className={`${
+          rowData.category.categoryName === "Q"
+            ? "bg-red-100 text-red-900"
+            : rowData.category.categoryName === "P"
+            ? "bg-blue-100 text-blue-900"
+            : rowData.category.categoryName === "N"
+            ? "bg-teal-100 text-teal-900"
+            : "bg-gray-100 text-gray-900" // Fallback if none of the conditions match
+        } rounded-full w-[2rem] h-[2rem] inline-flex font-bold justify-center items-center text-sm`}
+      >
+        {rowData.category.categoryName}
+      </div>
+    );
   };
 
-  const confirm2 = (rowData) => {
-    confirmDialog({
-      message: "Do you want to delete this record?",
-      header: "Delete Confirmation",
-      icon: "pi pi-info-circle",
-      defaultFocus: "reject",
-      acceptClassName: "p-button-danger",
-      accept: () => deleteItem(rowData),
-      // eslint-disable-next-line no-dupe-keys
-      rejectClassName: "custom-reject-button",
-      // eslint-disable-next-line no-dupe-keys
-      acceptClassName: "custom-accept-button",
-    });
+  const colorSet = (rowData) => { 
+    return (
+      <>
+        <div className="bg-green-700 text-white text-center w-20 p-1 rounded-lg">
+          {rowData.brandQuantity}
+        </div>
+      </>
+    );
   };
-  // eslint-disable-next-line no-undef
-  // const editItem = (rowData) => {
-  //   console.log(`Editing item: ${rowData}`);
-  // };
+  const colorSetdue = (rowData) => { 
+    return (
+      <>
+        <div className="bg-red-700 text-white text-center w-20 p-1 rounded-lg">
+          {rowData.dueBrandQuantity}
+        </div>
+      </>
+    );
+  };
+
   return (
     <>
-      <ConfirmDialog />
       <div className="p-5">
         <BreadCrumb model={items} home={home} className="my-5 w-72" />
         <div className="p-5 bg-[#163832] rounded-md">
@@ -106,7 +82,7 @@ function SubCategory() {
             <div className="flex w-[40%]">
               {" "}
               <p className="text-2xl max-[428px]:w-[100%] max-[428px]:mb-3 text-white font-semibold w-full">
-                Brand List
+                Total Stock List
               </p>
               <div className="w-full">
                 <input
@@ -126,45 +102,64 @@ function SubCategory() {
                 />
               </div>
             </div>
-            <Link to={"/admin/setting/add-subCategory"}>
+            {/* <Link to={"/admin/setting/add-subCategory"}>
               <div className="px-3 py-2 text-lg font-semibold cursor-pointer rounded-md active:scale-[0.9000] shadow-md max-[428px]:mb-3 bg-[#ccf6d9] max-[428px]:w-[100%]">
                 + Add Brand
               </div>
-            </Link>
+            </Link> */}
           </div>
           <DataTable
             className="mt-3"
-            value={subCategories}
+            value={totalStockData}
             tableStyle={{ minWidth: "50rem" }}
             paginator
             filters={filter}
+            // showGridlines
+            // stripedRows
             rows={10}
             rowsPerPageOptions={[5, 10, 25, 50, 100]}
             scrollHeight="580px"
           >
-            <Column field="name" header="Category Name" sortable></Column>
-            <Column field="Type" header="Type" sortable></Column>
+            <Column field="invoice" header="Invoice" sortable></Column>
+            <Column
+              field="category.categoryName"
+              body={stockBodyTemplate}
+              header="Category"
+              sortable
+            ></Column>
+            <Column
+              field="brandName.name"
+              header="Brand Name"
+              sortable
+            ></Column>
+            <Column
+              field="brandName.Type"
+              header="Brand Type"
+              sortable
+            ></Column>
             <Column
               field="brandQuantity"
-              header="Brand Quantity"
+              header="Total Brand Quantity"
               sortable
+              body={colorSet}
             ></Column>
             <Column
-              field="subCategoryDescription"
-              header="Description"
+              field="dueBrandQuantity"
+              header="Total Brand Due Quantity"
               sortable
+              body={colorSetdue}
             ></Column>
-            <Column
+            {/* <Column
               header="Action"
               body={(rowData) => (
                 <>
                   {console.log(rowData)}
                   <div className="flex gap-5 text-[20px] text-black ">
-                    {/* className="hover:-translate-y-1 cursor-pointer transition-all" */}
-                    {/* <FaEye
+                    className="hover:-translate-y-1 cursor-pointer transition-all"
+                    <FaEye
                         // onClick={() => editItem(rowData)}
                         className="cursor-pointer "
-                      /> */}
+                      />
                     <MdDelete
                       onClick={() => confirm2(rowData)}
                       className="cursor-pointer "
@@ -172,7 +167,7 @@ function SubCategory() {
                   </div>
                 </>
               )}
-            />
+            /> */}
           </DataTable>
         </div>
         {loading && <Spinner />}
@@ -182,4 +177,4 @@ function SubCategory() {
   );
 }
 
-export default SubCategory;
+export default TotalStock;

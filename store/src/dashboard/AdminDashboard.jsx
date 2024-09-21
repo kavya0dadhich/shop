@@ -17,7 +17,7 @@ function AdminDashboard() {
   };
   console.log(dataFromChildNav);
   return (
-    <div className="h-screen bg-[#88bdbc]/10">
+    <div className="h-[100vh] bg-[#88bdbc]/30">
       <div className="flex h-full">
         {/* Sidebar */}
         <div

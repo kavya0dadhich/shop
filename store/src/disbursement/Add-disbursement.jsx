@@ -45,7 +45,7 @@ const home = { icon: 'bi bi-house', url: '/admin' };
   };
 
   useEffect(() => {
-    fetch("http://localhost:3000/productList")
+    fetch("http://localhost:3000/productList" ,{credentials: "include",})
       .then((res) => res.json())
       .then((data) => {
         if (data.result && data.result.length) {
@@ -58,7 +58,7 @@ const home = { icon: 'bi bi-house', url: '/admin' };
           console.log(formattedData);
         }
       });
-    fetch("http://localhost:3000/shopList")
+    fetch("http://localhost:3000/shopList",{credentials: "include",})
       .then((res) => res.json())
       .then((data) => {
         if (data.result && data.result.length) {
@@ -102,6 +102,7 @@ const home = { icon: 'bi bi-house', url: '/admin' };
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
+      credentials: "include",
     };
     fetch("http://localhost:3000/createDirsperment", requestOptions)
     .then((res) => res.json())
@@ -275,7 +276,7 @@ const home = { icon: 'bi bi-house', url: '/admin' };
                   </div>
                   <div className="w-[100%] flex justify-end gap-5 mt-3">
                     <button
-                      className="px-5 py-2 text-lg rounded-md active:scale-[0.9] shadow-md bg-[#4f4a41] text-white"
+                      className="px-5 py-2 text-lg rounded-md active:scale-[0.9] shadow-md bg-[#c0fb86] "
                       type="submit"
                     >
                       Submit

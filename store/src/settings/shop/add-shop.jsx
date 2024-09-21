@@ -1,12 +1,19 @@
-import { Form, Formik } from "formik";
-import { Calendar } from "primereact/calendar";
-import { Link, useNavigate } from "react-router-dom";
-import { useRef, useState } from "react";
-import { Spinner } from "../../components/spinner";
-import moment from "moment";
-import { Toast } from "primereact/toast";
+// import { Form, Formik } from "formik";
+// import { Calendar } from "primereact/calendar";
+// import { Link, useNavigate } from "react-router-dom";
+// import { useRef, useState } from "react";
+// import { Spinner } from "../../components/spinner";
+// import moment from "moment";
+// import { Toast } from "primereact/toast";
+import moment from 'moment/moment';
+import { BreadCrumb, Calendar, Form, Formik, Link, Spinner, Toast, useNavigate, useRef, useState } from '../../share/dependencies'
 
 function AddShop() {
+  const items = [
+    { label: "Shop", url: "/admin/setting/shop" },
+    { label: "Add Shop" },
+  ];
+  const home = { icon: "bi bi-house", url: "/admin" };
   const [loading, setLoading] = useState(false);
   const toast = useRef(null);
   const navigate = useNavigate();
@@ -31,6 +38,7 @@ function AddShop() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
+      credentials: 'include'
     };
     fetch("http://localhost:3000/createShop", requestOptions)
       .then((res) => res.json())
@@ -92,7 +100,9 @@ function AddShop() {
   };
   return (
     <>
-          <div className="p-5 bg-[#163832] rounded-md">
+    <div className="p-5">
+          <BreadCrumb  model={items} home={home} className="my-5 w-72 rounded-md  " />
+          <div className="p-5 bg-[#254e58] rounded-md">
             <Formik initialValues={initialValues} onSubmit={onSubmit}>
               {({ values, handleChange, handleBlur }) => (
                 <>
@@ -166,7 +176,7 @@ function AddShop() {
                       </div>
                       <div className="w-[100%] flex justify-end gap-5 mt-3">
                         <button
-                          className="px-5 py-2 text-lg rounded-md active:scale-[0.9] shadow-md bg-[#4f4a41] text-white"
+                          className="px-5 py-2 text-lg rounded-md active:scale-[0.9] shadow-md bg-[#c0fb86] "
                           type="submit"
                         >
                           Submit
@@ -187,6 +197,7 @@ function AddShop() {
                 </>
               )}
             </Formik>
+          </div>
           </div>
       {loading && <Spinner />}
     </>

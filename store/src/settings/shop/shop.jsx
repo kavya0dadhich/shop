@@ -1,5 +1,5 @@
 import Column from 'antd/es/table/Column';
-import { AiFillEdit, BreadCrumb, confirmDialog, ConfirmDialog, DataTable, Dialog, FaEye, FilterMatchMode, Link, MdDelete, Spinner, Toast, useEffect, useRef, useState } from '../../share/dependencies'
+import {  BreadCrumb, confirmDialog, ConfirmDialog, DataTable, Dialog, FaEye, FilterMatchMode, Link, MdDelete, Spinner, Toast, useEffect, useRef, useState } from '../../share/dependencies'
 
 function Shop() {
   const items = [{ label: "Shop", url: "/admin/setting/shop" }];
@@ -16,7 +16,7 @@ function Shop() {
     shopList()
   }, []);
   function shopList(){
-    fetch("http://localhost:3000/shopList")
+    fetch("http://localhost:3000/shopList",{credentials: 'include'})
     .then((res) => res.json())
     .then((data) => {
       setLoading(false)
@@ -26,9 +26,9 @@ function Shop() {
       console.log(error);
     });
   }
-  const editItem = (rowData) => {
-    console.log(`Editing item: ${rowData}`);
-  };
+  // const editItem = (rowData) => {
+  //   console.log(`Editing item: ${rowData}`);
+  // };
   const viewItem = (rowData) => {
     console.log(`Editing item: `, rowData);
     setDialogData(rowData);
@@ -72,6 +72,7 @@ function Shop() {
     const requestOptions = {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
+      credentials: 'include'
     };
     fetch(
       `http://localhost:3000/shopDelete/${rowData._id}`,
@@ -166,8 +167,9 @@ function Shop() {
           filters={filter}
           rows={10}
           rowsPerPageOptions={[5, 10, 25, 50, 100]}
-          scrollHeight="620px"
+          scrollHeight="580px"
         >
+          <Column field="date" header="Date" sortable></Column>
           <Column field="shopName" header="Shop Name" sortable></Column>
           {/* <Column field="product" header="Product details" sortable body={(rowData) => setProductdetails(rowData)}></Column> */}
           <Column
@@ -193,10 +195,10 @@ function Shop() {
                     onClick={() => viewItem(rowData)}
                     className="cursor-pointer "
                   />
-                  <AiFillEdit
+                  {/* <AiFillEdit
                     onClick={() => editItem(rowData)}
                     className="cursor-pointer "
-                  />
+                  /> */}
                   <MdDelete
                       onClick={() => confirm2(rowData)}
                       className="cursor-pointer"
@@ -238,7 +240,7 @@ function Shop() {
             paginator
             rows={5}
             rowsPerPageOptions={[5, 10, 25, 50]}
-            scrollHeight="620px"
+            scrollHeight="580px"
           >
             <Column
               field="category.categoryName"

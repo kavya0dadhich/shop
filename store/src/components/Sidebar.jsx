@@ -1,10 +1,10 @@
 import {
-  AiTwotoneBuild,
+  // AiTwotoneBuild,
   BiSolidCategory,
   BiSolidPurchaseTag,
   CiLogout,
   CiMenuFries,
-  CiShop,
+  // CiShop,
   FcSalesPerformance,
   GiVerticalFlip,
   ImProfile,
@@ -16,12 +16,12 @@ import {
   useRef,
   Toast,
   useNavigate,
+  AiOutlineStock,
 } from "../share/dependencies";
 import Cookies from "js-cookie";
 
 // eslint-disable-next-line react/prop-types
 const Sidebar = ({ onDataSend }) => {
-
   const navigate = useNavigate();
   // eslint-disable-next-line no-unused-vars
   const [active, setActive] = useState("");
@@ -50,7 +50,7 @@ const Sidebar = ({ onDataSend }) => {
     setTimeout(() => {
       navigate("/");
       Cookies.remove("token");
-    }, 2500);
+    }, 1000);
   };
   return (
     <div
@@ -135,6 +135,48 @@ const Sidebar = ({ onDataSend }) => {
               <p className={Thide ? `hidden` : `M-hide`}>Disbursement</p>
             </li>
           </Link>
+          <Link to="/admin/total-stock">
+            <li
+              onClick={() => handleActive("/admin/total-stock")}
+              className={`hover:bg-[#c0fb86] hover:shadow-md transition-all duration-200 hover:text-[#3b7b68] mb-3 px-4 py-2 text-xl font-[500] ${
+                currentPath === "/admin/total-stock"
+                  ? "bg-[#c0fb86] shadow-md text-[#3b7b68] "
+                  : "text-white"
+              } flex items-center gap-2 ${
+                Thide ? "w-[100%] mt-3" : "w-72"
+              } rounded-full cursor-pointer total-stock`}
+            >
+              <Tooltip
+                target=".total-stock"
+                content="Total Stock"
+                position="right"
+                event=""
+              />
+              <GiVerticalFlip />
+              <p className={Thide ? `hidden` : `M-hide`}>Total Stock</p>
+            </li>
+          </Link>
+          <Link to="/admin/O-stock">
+            <li
+              onClick={() => handleActive("/admin/O-stock")}
+              className={`hover:bg-[#c0fb86] hover:shadow-md transition-all duration-200 hover:text-[#3b7b68] mb-3 px-4 py-2 text-xl font-[500] ${
+                currentPath === "/admin/O-stock"
+                  ? "bg-[#c0fb86] shadow-md text-[#3b7b68] "
+                  : "text-white"
+              } flex items-center gap-2 ${
+                Thide ? "w-[100%] mt-3" : "w-72"
+              } rounded-full cursor-pointer Ostock`}
+            >
+              <Tooltip
+                target=".Ostock"
+                content="Opening Stock"
+                position="right"
+                event=""
+              />
+              <AiOutlineStock />
+              <p className={Thide ? `hidden` : `M-hide`}>Opening Stock</p>
+            </li>
+          </Link>
         </ul>
         <hr />
         <ul className="mt-3">
@@ -159,7 +201,7 @@ const Sidebar = ({ onDataSend }) => {
               <p className={Thide ? `hidden` : `M-hide`}>User Profile</p>
             </li>
           </Link>
-          <Link to="/admin/setting/shop">
+          {/* <Link to="/admin/setting/shop">
             <li
               onClick={() => handleActive("/admin/setting/shop")}
               className={`hover:bg-[#c0fb86] hover:shadow-md transition-all duration-200 hover:text-[#3b7b68] mb-3 px-4 py-2 text-xl font-[500] ${
@@ -179,7 +221,7 @@ const Sidebar = ({ onDataSend }) => {
               <CiShop />
               <p className={Thide ? `hidden` : `M-hide`}>Shops</p>
             </li>
-          </Link>
+          </Link> */}
           <Link to="/admin/setting/Category">
             <li
               onClick={() => handleActive("/admin/setting/Category")}
@@ -219,10 +261,10 @@ const Sidebar = ({ onDataSend }) => {
                 event=""
               />
               <MdCategory />
-              <p className={Thide ? `hidden` : `M-hide`}>Sub Category</p>
+              <p className={Thide ? `hidden` : `M-hide`}>Brand Name</p>
             </li>
           </Link>
-          <Link to="/admin/setting/ml">
+          {/* <Link to="/admin/setting/ml">
             <li
               onClick={() => handleActive("/admin/setting/ml")}
               className={`hover:bg-[#c0fb86] hover:shadow-md transition-all duration-200 hover:text-[#3b7b68] mb-3 py-2 text-xl px-4 font-[500] ${
@@ -242,7 +284,7 @@ const Sidebar = ({ onDataSend }) => {
               <AiTwotoneBuild />
               <p className={Thide ? `hidden` : `M-hide`}>Milli liter</p>
             </li>
-          </Link>
+          </Link> */}
         </ul>
         {/* <div className="border border-black overflow-hidden"> */}
         <ul className=" overflow-hidden">

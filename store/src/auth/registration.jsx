@@ -8,13 +8,15 @@
     Calendar,
     Toast,
     useFormik,
+    useNavigate,
     useRef,
   } from "../share/dependencies";
   import { registrationSchema } from "../schemas";
+import { handleCalendarFocus } from "../components/calendarFocus";
   function Registration() {
     const toast = useRef(null);
     // const [hide, setHide] = useState(false);
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
     // function showPassword(){
     //   setHide(!hide)
     // }
@@ -38,7 +40,7 @@
       const data = {
         role: ['Admin'],
         email: value.email,
-        password: value.password,
+        password: value.password, 
         firstName: value.firstName,
         lastName: value.lastName,
         address: value.address,
@@ -50,7 +52,7 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       };
-      fetch("http://localhost:3000/createRegister", requestOptions)
+      fetch(`${import.meta.env.VITE_BACKEND_API_URL}/createRegister`, requestOptions)
         .then((res) => res.json())
         .then((resp) => {
           console.log(resp);
@@ -61,9 +63,9 @@
               summary: "Success",
               detail: resp.message,
             });
-            // setTimeout(() => {
-            //   navigate("/");
-            // }, 2500);
+            setTimeout(() => {
+              navigate("/");
+            }, 2500);
           } else {
             toast.current.show({
               severity: "error",
@@ -74,18 +76,7 @@
           }
         });
     }
-    const handleCalendarFocus = () => {
-      setTimeout(() => {
-        const datePickerCollection =
-          document.getElementsByClassName("p-datepicker");
-        console.log(datePickerCollection.item);
-        if (datePickerCollection.length) {
-          const datePicker = datePickerCollection.item(0);
-          datePicker.setAttribute("tabindex", "0");
-          datePicker.focus();
-        }
-      }, 500);
-    };
+
     return (
       <>
         <div className="flex flex-wrap h-screen bg-[#FFF7F1]">
@@ -240,46 +231,6 @@
                       </p>
                     ) : null}
                   </div>
-                  {/* <div className="w-[49%] max-[622px]:w-[100%] flex gap-3">
-                    <label htmlFor="email" className="text-[17px] text-white">
-                      Address <span className="text-red-500">*</span>
-                    </label>
-                    <Checkbox
-                      onChange={(e) =>
-                        formik.setFieldValue("checked", e.target.checked)
-                      }
-                      onBlur={formik.handleBlur}
-                      checked={formik.values.checked}
-                    />
-                    <div className="flex align-items-center">
-                      <Checkbox
-                        inputId="ingredient1"
-                        name="male"
-                        onChange={(e) =>
-                          formik.setFieldValue("male", e.target.checked)
-                        }
-                        onBlur={formik.handleBlur}
-                        checked={formik.values.checked}
-                      />
-                      <label htmlFor="ingredient1" className="ml-2 text-white">
-                        Cheese
-                      </label>
-                    </div>
-                    <div className="flex align-items-center">
-                      <Checkbox
-                        inputId="ingredient2"
-                        name="female"
-                        onChange={(e) =>
-                          formik.setFieldValue("female", e.target.checked)
-                        }
-                        onBlur={formik.handleBlur}
-                        checked={formik.values.checked}
-                      />
-                      <label htmlFor="ingredient2" className="ml-2 text-white">
-                        Mushroom
-                      </label>
-                    </div>
-                  </div> */}
                   <div className="w-[100%] flex justify-end gap-5">
                     <button
                       className="px-5 py-2 text-lg rounded-md active:scale-[0.9] shadow-md bg-green-500 w-full text-white"

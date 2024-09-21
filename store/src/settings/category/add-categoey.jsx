@@ -1,11 +1,17 @@
-import { Link, useNavigate } from "react-router-dom";
-import { RiArrowGoBackFill } from "react-icons/ri";
-import { useFormik } from "formik";
-import { Toast } from "primereact/toast";
-import { useRef } from "react";
+// import { Link, useNavigate } from "react-router-dom";
+// import { RiArrowGoBackFill } from "react-icons/ri";
+// import { useFormik } from "formik";
+// import { Toast } from "primereact/toast";
+// import { useRef } from "react";
+import { BreadCrumb, Link, RiArrowGoBackFill, Toast, useFormik, useNavigate, useRef } from '../../share/dependencies'
 
 function AddCategoey() {
   const navigate = useNavigate()
+  const items = [
+    { label: "Category", url: "/admin/setting/Category" },
+    { label: "Add Category" },
+  ];
+  const home = { icon: "bi bi-house", url: "/admin" };
   const toast = useRef(null);
       const initialValues = {
         description:"",
@@ -24,12 +30,13 @@ function AddCategoey() {
         console.log(value);
         const data = {
           description: value.description,
-          categoryName: value.categoryName,
+          categoryName: value.categoryName.toUpperCase(),
         };
         const requestOptions = {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
+          credentials: 'include'
         };
         fetch(`http://localhost:3000/createCategory`, requestOptions)
           .then((res) => res.json())
@@ -44,7 +51,7 @@ function AddCategoey() {
               });
               setTimeout(() => {
                 navigate('/admin/setting/Category');
-              }, 2500);
+              }, 1000);
             }else{
               toast.current.show({
                 severity: "error",
@@ -60,7 +67,9 @@ function AddCategoey() {
       }
   return (
     <>
-          <div className="p-5 bg-[#163832] rounded-md text-white">
+    <div className="p-5">
+    <BreadCrumb model={items} home={home} className="my-5 w-72" />
+          <div className="p-5 bg-[#254e58] rounded-md text-white">
             <div className="flex justify-between items-center mb-2 flex-wrap">
               <div>
                 {" "}
@@ -80,7 +89,7 @@ function AddCategoey() {
             </div>
             <form
               action=""
-              className="flex justify-between flex-wrap text-white"
+              className="flex justify-between flex-wrap text-white mt-5"
               onSubmit={formik.handleSubmit}
             >
               <div className="w-[49%] max-[622px]:w-[100%]">
@@ -88,7 +97,7 @@ function AddCategoey() {
                   Category Name<span className="text-red-500">*</span>
                 </label>
                 <input
-                  className="w-full p-3 shadow-sm rounded-md outline-none mt-2 mb-4"
+                  className="w-full p-3 shadow-sm rounded-md outline-none mt-2 mb-4 text-black"
                   placeholder="Category Name"
                   type="text"
                   name="categoryName"
@@ -103,8 +112,8 @@ function AddCategoey() {
                 Description<span className="text-red-500">*</span>
                 </label>
                 <input
-                  className="w-full p-3 shadow-sm rounded-md outline-none mt-2 mb-4"
-                  placeholder="Product Price"
+                  className="w-full p-3 shadow-sm rounded-md outline-none mt-2 mb-4 text-black"
+                  placeholder="Description"
                   type="text"
                   name="description"
                   id="description"
@@ -115,7 +124,7 @@ function AddCategoey() {
               </div>
               <div className="w-[100%] flex justify-end gap-5 mt-3">
                 <button
-                  className="px-5 py-2 text-lg rounded-md active:scale-[0.9] shadow-md bg-green-500 text-white"
+                  className="px-5 py-2 text-lg rounded-md active:scale-[0.9] shadow-md bg-[#c0fb86] text-black"
                   type="submit"
                 >
                   Submit
@@ -131,6 +140,7 @@ function AddCategoey() {
                 </Link>
               </div>
             </form>
+          </div>
           </div>
       <Toast ref={toast} />
     </>
