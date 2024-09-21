@@ -1,3 +1,4 @@
+const { type } = require("express/lib/response");
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
@@ -38,5 +39,10 @@ const salesSchema = new Schema({
     type: Boolean,
     default: true,
   },
+  totalPrice: {
+    type: Number,
+    default: 0,
+  },
+  id: {},
 });
 module.exports = mongoose.model("sales", salesSchema);

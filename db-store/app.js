@@ -7,12 +7,21 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 connect();
 
-app.use(cors({
-    origin:'http://localhost:5173',
-    credentials: true
-}));
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
+
+const port = 3000;
+
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(router);
-app.listen(3000, console.log("Server is Working"));
+app.listen(port, () => {
+  console.log(`----------------------------------------
+Server is live at: http://localhost:${port}
+----------------------------------------`);
+});

@@ -10,7 +10,7 @@ const ProductSchema = new Schema({
     type: Object,
     default: false,
   },
-  subCategories: {
+  brandName: {
     type: Object,
     default: false,
   },
@@ -18,18 +18,18 @@ const ProductSchema = new Schema({
     type: Number,
     default: false,
   },
-  dueQuantity: {
-    type: Number,
-    default: false,
-  },
+  // dueQuantity: {
+  //   type: Number,
+  //   default: false,
+  // },
   address: {
     type: String,
     default: false,
   },
-  ml: {
-    type: Object,
-    default: false,
-  },
+  // ml: {
+  //   type: Object,
+  //   default: false,
+  // },
   date: {
     type: String,
     default: false,
@@ -38,5 +38,6 @@ const ProductSchema = new Schema({
     type: Boolean,
     default: true,
   },
+  id:{},
 });
 module.exports = mongoose.model("Products", ProductSchema);

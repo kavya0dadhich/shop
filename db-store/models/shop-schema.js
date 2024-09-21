@@ -29,5 +29,6 @@ const ShopSchema = new Schema({
     type: Boolean,
     default: true,
   },
+  id:{},
 });
 module.exports = mongoose.model("Shops", ShopSchema);

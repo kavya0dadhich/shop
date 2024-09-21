@@ -9,6 +9,11 @@ const mlSchema = new Schema({
     description:{
         type:String,
         default:false
+    },
+    id:{},
+    status:{
+        default:true,
+        type:Boolean
     }
 })
 module.exports = mongoose.model("ml",mlSchema)
